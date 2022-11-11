@@ -1,9 +1,14 @@
 from diode_experiment import DiodeExperiment
 import matplotlib.pyplot as plt
+from diode_experiment import init
 
-measurements = DiodeExperiment()
+print('devices')
+init()
+inpt = input("Please choose the index of the device to use: ")
 
-print(measurements.measurements(N = 4, start = 0, stop = 1024))
+measurements = DiodeExperiment(inpt)
 
-# plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', )
-# plt.show()
+voltage, c_err, current, v_err = measurements.measurements(N = 1, start = 0, stop = 1024)
+
+plt.errorbar(current, voltage, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
+plt.show()

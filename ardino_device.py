@@ -1,28 +1,30 @@
 import pyvisa
 
 # listing of devices
-def list_devices(rm):
+def list_devices():
     rm = pyvisa.ResourceManager("@py")
+    
     return rm.list_resources()
 
 # getting the information of the plugged-in devices
 def info_devices():
     rm = pyvisa.ResourceManager("@py")
-    for i in rm.list_resources():
+    for i, j in enumerate(rm.list_resources()):
 
         # if information of device can not be requested, device will be unknown
         try:
-            print(f'{i}, information:', rm.open_resource(str(i), read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
+            print(f'{i}. {j}, information:', rm.open_resource(str(j), read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
         except:
-            print(f'{i}, device unknown')
+            print(f'{i}. {j}, device unknown')
 
+    return rm.list_resources()
 # 
 class ArduinoVISADevice:
     
     def __init__(self, port):
         self.output = 0
         rm = pyvisa.ResourceManager("@py")
-        self.device = rm.open_resource(f"{port}", read_termination = "\r\n", write_termination = "\n")
+        self.device = rm.open_resource(port, read_termination = "\r\n", write_termination = "\n")
 
     def channel_value(self, channel):
         return self.device.query(f"MEAS:CH{channel}?")

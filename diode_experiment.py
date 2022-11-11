@@ -2,17 +2,17 @@
 # 8-11-2022
 # model for measuring and computing charachteristics of electronic devices
 
-from ardino_device import ArduinoVISADevice, info_devices
+from ardino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
 import math
+def init():
+    return info_devices()
 
 class DiodeExperiment:
 
     # requesting and asking for what device to use for input
-    def __init__(self):
-        print('devices to choose from')
-        info_devices()
-        self.device = ArduinoVISADevice(port = f"{input('What device would you like to use? ')}")
+    def __init__(self, port):
+        self.device = ArduinoVISADevice(port = str(list_devices()[int(port)]))
 
     # converting of digital to analog for voltage
     def dac_volt(self, bits, max_bits, max_volts):
@@ -43,9 +43,23 @@ class DiodeExperiment:
         return voltage_led, current_led
 
     def measurements(self, N, start, stop):
-        voltage_lists, current_lists = [], []
+        current_lists, voltage_lists,  = [], []
 
         for i in range(N):
-            None
+            measured = self.scan(start, stop)
+            current_lists.append(measured[1])
+            voltage_lists.append(measured[0])
 
-        return None 
+       
+        transposed_current = np.array(current_lists).T
+        transposed_voltage = np.array(voltage_lists).T
+
+        current_average = np.average(transposed_current, axis = 1)
+        voltage_average = np.average(transposed_voltage, axis = 1)
+        
+        c_err = [np.std(i) for i in transposed_current]
+        v_err = [np.std(i) for i in transposed_voltage]
+
+        self.device.close_device()
+        print(current_average, c_err, voltage_average, v_err)
+        return current_average, c_err, voltage_average, v_err
