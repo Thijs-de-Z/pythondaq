@@ -1,6 +1,6 @@
 # model for measuring and computing charachteristics of electronic devices
 
-from pythondaq.arduino_device import ArduinoVISADevice, info_devices, list_devices
+from arduino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
 
 # asking devices and their information
