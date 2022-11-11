@@ -16,7 +16,7 @@ def info_devices():
         try:
             print(f'{i}. {j}, information:', rm.open_resource(str(j), read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
         except:
-            print(f'{i}. {j}, device unknown')
+            print(f'{i}. {j}, device unknown')              # raises an userwarning
 
     return rm.list_resources()
 

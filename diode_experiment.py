@@ -19,7 +19,7 @@ class DiodeExperiment:
 
     # measuring and calculating the u,i characteristics of a diode
     def scan(self, start, stop):
-        max_bits = 2**10
+        max_bits = 2 ** 10
         max_volts = 3.3
         voltage_led, current_led = [], []
         resistance = 220
@@ -32,7 +32,7 @@ class DiodeExperiment:
             volt_total = self.dac_volt(self.device.get_input_value(channel = 1), max_bits, max_volts)
             volt_resistance = self.dac_volt(self.device.get_input_value(channel = 2), max_bits, max_volts)
 
-            # calculating
+            # calculating of voltage and current
             volt_led = volt_total - volt_resistance
             i_led = volt_resistance / resistance
 
