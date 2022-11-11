@@ -2,6 +2,7 @@
 
 from arduino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
+import math
 
 # asking devices and their information
 def init():
@@ -60,7 +61,7 @@ class DiodeExperiment:
         self.voltage_average = np.average(transposed_voltage, axis = 1)
         
         # calculating erros of all measurements
-        self.c_err = [np.std(i) for i in transposed_current]
+        self.c_err = [np.std(i) / math.sqrt(N) for i in transposed_current]
         self.v_err = [np.std(i) for i in transposed_voltage]
 
         self.device.close_device()
