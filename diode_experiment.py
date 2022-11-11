@@ -43,17 +43,17 @@ class DiodeExperiment:
 
     # calculations of errors and average of multiple measurements
     def measurements(self, N, start, stop):
-        current_lists, voltage_lists,  = [], []
+         measured_currents, measured_voltages,  = [], []
 
         # measuring and calculating voltage and current 
         for i in range(N):
             measured = self.scan(start, stop)
-            current_lists.append(measured[1])
-            voltage_lists.append(measured[0])
+            measured_currents.append(measured[1])
+            measured_voltages.append(measured[0])
 
         # transposing of the array of arrays to get the first, second, ... value of every array into a single array
-        transposed_current = np.array(current_lists).T
-        transposed_voltage = np.array(voltage_lists).T
+        transposed_current = np.array(measured_currents).T
+        transposed_voltage = np.array(measured_voltages).T
         
         # averaging all values of the transposed array
         self.current_average = np.average(transposed_current, axis = 1)
