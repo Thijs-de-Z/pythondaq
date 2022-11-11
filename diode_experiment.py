@@ -1,10 +1,9 @@
-# Thijs de Zeeuw
-# 8-11-2022
 # model for measuring and computing charachteristics of electronic devices
 
-from ardino_device import ArduinoVISADevice, info_devices, list_devices
+from pythondaq.arduino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
-import math
+
+# asking devices and their information
 def init():
     return info_devices()
 
@@ -29,7 +28,7 @@ class DiodeExperiment:
         for i in range(start, stop):
 
             # request and converting
-            self.device.set_output_value(value = i)
+            self.device.set_output_value(value = i, channel = 0)
             volt_total = self.dac_volt(self.device.get_input_value(channel = 1), max_bits, max_volts)
             volt_resistance = self.dac_volt(self.device.get_input_value(channel = 2), max_bits, max_volts)
 
@@ -42,24 +41,39 @@ class DiodeExperiment:
 
         return voltage_led, current_led
 
+    # calculations of errors and average of multiple measurements
     def measurements(self, N, start, stop):
         current_lists, voltage_lists,  = [], []
 
+        # measuring and calculating voltage and current 
         for i in range(N):
             measured = self.scan(start, stop)
             current_lists.append(measured[1])
             voltage_lists.append(measured[0])
 
-       
+        # transposing of the array of arrays to get the first, second, ... value of every array into a single array
         transposed_current = np.array(current_lists).T
         transposed_voltage = np.array(voltage_lists).T
-
-        current_average = np.average(transposed_current, axis = 1)
-        voltage_average = np.average(transposed_voltage, axis = 1)
         
-        c_err = [np.std(i) for i in transposed_current]
-        v_err = [np.std(i) for i in transposed_voltage]
+        # averaging all values of the transposed array
+        self.current_average = np.average(transposed_current, axis = 1)
+        self.voltage_average = np.average(transposed_voltage, axis = 1)
+        
+        # calculating erros of all measurements
+        self.c_err = [np.std(i) for i in transposed_current]
+        self.v_err = [np.std(i) for i in transposed_voltage]
 
         self.device.close_device()
-        print(current_average, c_err, voltage_average, v_err)
-        return current_average, c_err, voltage_average, v_err
+    
+    # requesting of different measured values
+    def get_current(self):
+        return self.current_average
+
+    def get_voltage(self):
+        return self.voltage_average
+
+    def get_err_current(self):
+        return self.c_err
+
+    def get_err_voltage(self):
+        return self.v_err
