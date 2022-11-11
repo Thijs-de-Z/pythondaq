@@ -53,5 +53,5 @@ class ArduinoVISADevice:
 
     # closing of device
     def close_device(self):
-        self.set_output_value(value = 0)
+        self.set_output_value(value = 0, channel = 0)
         self.device.close()
