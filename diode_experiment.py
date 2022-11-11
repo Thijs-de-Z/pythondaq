@@ -61,9 +61,9 @@ class DiodeExperiment:
         self.voltage_average = np.average(transposed_voltage, axis = 1)
         
         # calculating erros of all measurements
-        self.c_err = [np.std(i) / math.sqrt(N) for i in transposed_current]
-        self.v_err = [np.std(i) for i in transposed_voltage]
-
+        self.c_err = [np.std(i) / math.sqrt(2) for i in transposed_current]
+        self.v_err = [np.std(i) / math.sqrt(2) for i in transposed_voltage]
+        print(self.c_err, self.v_err)
         self.device.close_device()
     
     # requesting of different measured values

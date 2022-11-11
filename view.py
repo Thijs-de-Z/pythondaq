@@ -13,7 +13,7 @@ inpt = input("Please choose the index of the device to use: ")
 measurements = DiodeExperiment(inpt)
 
 # starting of measurements with given values
-measurements.measurements(N = 10, start = 0, stop = 1024)
+measurements.measurements(N = 2, start = 0, stop = 1024)
 
 # getting of values
 current = measurements.get_current()
@@ -22,5 +22,5 @@ c_err = measurements.get_err_current()
 v_err = measurements.get_err_voltage()
 
 # plotting of measured data
-plt.errorbar(current, voltage, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
+plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
 plt.show()
