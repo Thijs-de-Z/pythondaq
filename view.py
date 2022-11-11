@@ -13,7 +13,7 @@ inpt = input("Please choose the index of the device to use: ")
 measurements = DiodeExperiment(inpt)
 
 # starting of measurements with given values
-measurements.measurements(N = 2, start = 0, stop = 1024)
+measurements.measurements(N = 10, start = 0, stop = 1024)
 
 # getting of values
 current = measurements.get_current()
