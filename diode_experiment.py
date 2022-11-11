@@ -43,7 +43,7 @@ class DiodeExperiment:
 
     # calculations of errors and average of multiple measurements
     def measurements(self, N, start, stop):
-         measured_currents, measured_voltages,  = [], []
+        measured_currents, measured_voltages,  = [], []
 
         # measuring and calculating voltage and current 
         for i in range(N):
