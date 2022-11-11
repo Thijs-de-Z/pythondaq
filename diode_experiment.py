@@ -77,3 +77,7 @@ class DiodeExperiment:
 
     def get_err_voltage(self):
         return self.v_err
+
+    # requesting of identification
+    def identification(self):
+        return self.device.get_identification
