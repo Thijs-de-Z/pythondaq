@@ -3,23 +3,27 @@
 from pythondaq.models.diode_experiment import DiodeExperiment, init
 import matplotlib.pyplot as plt
 
-# requesting of device to use
-print('devices')
-init()
-inpt = input("Please choose the index of the device to use: ")
+def i_u_characteristics():
 
-# calling of class
-measurements = DiodeExperiment(inpt)
+    # requesting of device to use
+    print('devices')
+    init()
+    inpt = input("Please choose the index of the device to use: ")
 
-# starting of measurements with given values
-measurements.measurements(N = 10, start = 0, stop = 1024)
+    N = input("How many measurements do you want to run? ")
 
-# getting of values
-current = measurements.get_current()
-voltage = measurements.get_voltage()
-c_err = measurements.get_err_current()
-v_err = measurements.get_err_voltage()
+    # calling of class
+    measurements = DiodeExperiment(inpt)
 
-# plotting of measured data
-plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
-plt.show()
+    # starting of measurements with given values
+    measurements.measurements(N = N, start = 0, stop = 1024)
+
+    # getting of values
+    current = measurements.get_current()
+    voltage = measurements.get_voltage()
+    c_err = measurements.get_err_current()
+    v_err = measurements.get_err_voltage()
+
+    # plotting of measured data
+    plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
+    plt.show()
