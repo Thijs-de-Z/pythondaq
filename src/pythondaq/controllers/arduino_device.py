@@ -1,5 +1,4 @@
 # controller of an arduino used for measurement of voltage of a LED
-
 import pyvisa
 
 # listing of devices

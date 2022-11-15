@@ -1,6 +1,6 @@
 # model for measuring and computing charachteristics of electronic devices
 
-from arduino_device import ArduinoVISADevice, info_devices, list_devices
+from pythondaq.controllers.arduino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
 import math
 
@@ -63,7 +63,6 @@ class DiodeExperiment:
         # calculating erros of all measurements
         self.c_err = [np.std(i) / math.sqrt(N) for i in transposed_current]
         self.v_err = [np.std(i) / math.sqrt(N) for i in transposed_voltage]
-        print(self.c_err, self.v_err)
         self.device.close_device()
     
     # requesting of different measured values

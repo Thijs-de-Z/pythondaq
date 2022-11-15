@@ -1,8 +1,7 @@
 # primitive view to use for an experiment with an LED and resistor
 
-from diode_experiment import DiodeExperiment
+from pythondaq.models.diode_experiment import DiodeExperiment, init
 import matplotlib.pyplot as plt
-from diode_experiment import init
 
 # requesting of device to use
 print('devices')
