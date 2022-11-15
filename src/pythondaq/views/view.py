@@ -6,39 +6,46 @@ from datetime import date
 import os
 import pandas as pd
 
-# saving of data in csv file:
-def data_to_csv(voltage_w_err, current_w_err):
-
-    # making new index and path of data with current date
-    indx = 0
-    today = f'{date.today()}'
-
-    path = f'../data/{today}'
+# check if path exists and if writing is allowed
+def path_check(path):
 
     # making new folder for current date if not done already
     if not os.path.exists(path):
 
-        # fixes error of path is non writeable
+        # fixes error if path is non writeable
         try:
             os.makedirs(path)
 
-            # new index for new measurement
-            for filename in os.listdir(path):
-                if filename.endswith(f'measurement_{indx}.csv'):
-                 indx += 1
-
-            # saving of data
-            df = pd.DataFrame({'voltage with error': voltage_w_err, 'current with error': current_w_err})
-
-            df.to_csv(f'../data/{today}/measurement_{indx}.csv', index = False)
-
         except:
             print("Not allowed to write in this path, please change the permissions or run the program through a different path")
+            return False
+    
+    return True
 
 
+# saving of data in csv file:
+def data_to_csv(voltage_w_err, current_w_err):
+
+    # new path with current date
+    today = f'{date.today()}'
+    path = f'../data/{today}'
+
+    if path_check(path):
+        indx = 0
+
+        # new index for new measurement
+        for filename in os.listdir(path):
+            if filename.endswith(f'measurement_{indx}.csv'):
+                indx += 1
+
+        # saving of data
+        df = {'voltage': voltage_w_err[0], 'error': voltage_w_err[1], 'current': current_w_err[0], 'error': current_w_err[1]}
+        df = pd.DataFrame(df)
+        df.to_csv(f'{path}/measurement_{indx}.csv', index = False, sep = ',')
 
 
 def i_u_characteristic():
+
     # requesting of device to use
     print('devices')
     init()
@@ -65,3 +72,4 @@ def i_u_characteristic():
     # plotting of measured data
     plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
     plt.show()
+
