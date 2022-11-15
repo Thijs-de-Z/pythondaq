@@ -67,9 +67,9 @@ def i_u_characteristic():
     v_err = measurements.get_err_voltage()
 
     # saving of data
-    data_to_csv([voltage, v_err], [current, c_err])
+    if input("would you like to save the data [Y/N]? ") == 'Y' or 'y':
+        data_to_csv([voltage, v_err], [current, c_err])
 
     # plotting of measured data
     plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
     plt.show()
-
