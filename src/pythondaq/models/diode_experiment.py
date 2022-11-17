@@ -5,15 +5,28 @@ import math
 
 
 def init(device = True):
-    """Requesting of visible devices and their identification
+    """Requesting of information of device(s). Uses an optional argument to request all devices
+
+    Args:
+        device (bool, list, str): Device(s) to request information of. Defaults to True.
 
     Returns:
-        list: list: List of device identities
-    """   
+        list, str: Returns information of device(s)
+    """
     if device:
         return info_devices()
+
     else: 
         return info_devices(device)
+
+
+def info():
+    """Requests identification of devices
+
+    Returns:
+        list: Identification of all visible devices
+    """
+    return list_devices()
 
 
 class DiodeExperiment:

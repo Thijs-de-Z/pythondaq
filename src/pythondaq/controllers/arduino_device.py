@@ -10,12 +10,15 @@ def list_devices():
     rm = pyvisa.ResourceManager("@py")
     return list(rm.list_resources())
 
-def info_devices(device = list_devices()):
-    """Requests and gives information of visible plugged in devices
 
-    Returns:
-        list: List of device identities
+def info_devices(device = list_devices()):
+    """Requests and gives information of the device(s). If no argument is given it will give information of all devices.
+
+    Args:
+        device (str, list, optional): Device(s) for information to be requested from if no argument is given print information of all devices.
+        Defaults to list_devices().
     """    
+
     rm = pyvisa.ResourceManager("@py")
     for i, j in enumerate(device):
 

@@ -1,31 +1,43 @@
 import click
-from pythondaq.models.diode_experiment import DiodeExperiment, init
+from pythondaq.models.diode_experiment import DiodeExperiment, init, info
 
 @click.group()
 def cmd_group():
+    """Making of terminal command group
+    """    
     pass
-
 
 
 @cmd_group.command(
     "list",
 )
 def listing():
-    return init()
+    """Requests a list of all visible devices and their identification
+
+    Returns:
+        list: Returns a list of visible devices
+    """    
+    return print(info())
 
 
 @cmd_group.command(
-    "info",
+    "info"
 )
 @click.option(
     "-d",
     "--device",
-    default = 'none',
-    type = str
+    default = True,
+    type = str,
+    help = "Device to request information from.",
+    show_default = True,
 )
 def information(device):
-    return init(device)
-
+    """Returns the information of the device. If no argument is given it returns information of all devices.\f
+    Args:
+        device (str): Device of which information is requested
+    """
+    init(device)
+    return
 
 
 @cmd_group.command(
