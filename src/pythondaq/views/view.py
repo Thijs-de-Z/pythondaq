@@ -29,5 +29,10 @@ def i_u_characteristic():
     if input("would you like to save the data [Y/N]? ") == 'Y' or 'y' or 'yes':
         data_to_csv([voltage, v_err], [current, c_err])
 
+    plt.figure()
+    plt.title('I,U characteristics of a LED')
     plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
-    plt.show()          # still have to make the graph visuals better
+    plt.xlim([0, 3.3])
+    plt.xlabel('Voltage (U)')
+    plt.ylabel('Current (I)')
+    plt.show()
