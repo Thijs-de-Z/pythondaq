@@ -11,22 +11,26 @@ def list_devices():
     return list(rm.list_resources())
 
 
-def info_devices(device = list_devices()):
+def info_devices(device = False):
     """Requests and gives information of the device(s). If no argument is given it will give information of all devices.
 
     Args:
         device (str, list, optional): Device(s) for information to be requested from if no argument is given print information of all devices.
-        Defaults to list_devices().
+        Defaults to False.
     """    
-
     rm = pyvisa.ResourceManager("@py")
-    for i, j in enumerate(device):
+    if not device:
+        for i, j in enumerate(list_devices()):
+            try:
+                print(f'{i}. {j}, information:', rm.open_resource(j, read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
+            except:
+                print(f'{i}. {j}, device unknown')              # raises an userwarning
 
+    else:
         try:
-            print(f'{i}. {j}, information:', rm.open_resource(j, read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
+            print(f'{device}, information:', rm.open_resource(device, read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
         except:
-            print(f'{i}. {j}, device unknown')              # raises an userwarning
-
+            print(f'{device}, device unknown')                  # raises an userwarning
     return
 
 

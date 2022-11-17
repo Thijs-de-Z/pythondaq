@@ -13,7 +13,7 @@ def init(device = True):
     Returns:
         list, str: Returns information of device(s)
     """
-    if device:
+    if device == True:
         return info_devices()
 
     else: 

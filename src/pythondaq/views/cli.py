@@ -26,7 +26,7 @@ def listing():
 @click.option(
     "-d",
     "--device",
-    default = True,
+    #default = True,
     type = str,
     help = "Device to request information from.",
     show_default = True,
@@ -56,6 +56,12 @@ def information(device):
     default = 3.3,
     type = click.FloatRange(0, 3.3),
     show_default = True,
+)
+@click.option(
+    "-d",
+    "--device",
+    default = False,
+    type = str,
 )
 def scanning(begin, end):
     experiment = DiodeExperiment
