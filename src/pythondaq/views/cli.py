@@ -1,16 +1,31 @@
 import click
-from pythondaq.models.diode_experiment import DiodeExperiment
+from pythondaq.models.diode_experiment import DiodeExperiment, init
 
 @click.group()
 def cmd_group():
     pass
 
+
+
 @cmd_group.command(
     "list",
 )
 def listing():
-    print('this')
-    return
+    return init()
+
+
+@cmd_group.command(
+    "info",
+)
+@click.option(
+    "-d",
+    "--device",
+    default = 'none',
+    type = str
+)
+def information(device):
+    return init(device)
+
 
 
 @cmd_group.command(
@@ -34,3 +49,6 @@ def scanning(begin, end):
     experiment = DiodeExperiment
     results = experiment.scan(begin, end)   # does not work yet
     return print(results)
+
+if __name__ == "__main__":
+    cmd_group()

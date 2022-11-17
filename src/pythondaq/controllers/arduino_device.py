@@ -10,21 +10,21 @@ def list_devices():
     rm = pyvisa.ResourceManager("@py")
     return list(rm.list_resources())
 
-def info_devices():
+def info_devices(device = list_devices()):
     """Requests and gives information of visible plugged in devices
 
     Returns:
         list: List of device identities
     """    
     rm = pyvisa.ResourceManager("@py")
-    for i, j in enumerate(rm.list_resources()):
+    for i, j in enumerate(device):
 
         try:
-            print(f'{i}. {j}, information:', rm.open_resource(str(j), read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
+            print(f'{i}. {j}, information:', rm.open_resource(j, read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
         except:
             print(f'{i}. {j}, device unknown')              # raises an userwarning
 
-    return list(rm.list_resources())
+    return
 
 
 class ArduinoVISADevice:

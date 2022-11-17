@@ -4,13 +4,17 @@ import numpy as np
 import math
 
 
-def init():
+def init(device = True):
     """Requesting of visible devices and their identification
 
     Returns:
         list: list: List of device identities
-    """    
-    return info_devices()
+    """   
+    if device:
+        return info_devices()
+    else: 
+        return info_devices(device)
+
 
 class DiodeExperiment:
     """Experiment for the I,U characteristics of a diode by measuring the voltages a LED and resistor
