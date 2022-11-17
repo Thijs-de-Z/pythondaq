@@ -1,12 +1,20 @@
 # controller of an arduino used for measurement of voltage of a LED
 import pyvisa
 
+def list_devices():
+    """Requesting the identification of visible devices
+
+    Returns:
+        list: List of device identities
+    """    
+    rm = pyvisa.ResourceManager("@py")
+    return list(rm.list_resources())
 
 def info_devices():
     """Requests and gives information of visible plugged in devices
 
     Returns:
-        list: List of device identities in string dtype
+        list: List of device identities
     """    
     rm = pyvisa.ResourceManager("@py")
     for i, j in enumerate(rm.list_resources()):
