@@ -28,16 +28,16 @@ def info():
     """
     return list_devices()
 
-def adc(volts, max_volts, max_bits):
-    """_summary_
+def adc_volt(volts, max_volts, max_bits):
+    """converts a analog voltage value to a digital value
 
     Args:
-        volts (_type_): _description_
-        max_volts (_type_): _description_
-        max_bits (_type_): _description_
+        volts (float): The analog value of the amount of volts
+        max_volts (float): The maximum amount of volts that can be outputted
+        max_bits (int): The digital value of the amount of volts in bits
 
     Returns:
-        _type_: _description_
+        int: Voltage in bits 
     """    
     return int(volts / max_volts * max_bits)
 
