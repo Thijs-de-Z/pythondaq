@@ -1,39 +1,68 @@
 # model for measuring and computing charachteristics of electronic devices
-
 from pythondaq.controllers.arduino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
 import math
 
-# asking devices and their information
+
 def init():
+    """Requesting of visible devices and their identification
+
+    Returns:
+        list: list: List of device identities
+    """    
     return info_devices()
 
 class DiodeExperiment:
+    """Experiment for the I,U characteristics of a diode by measuring the voltages a LED and resistor
+        The experiment uses 2^10 bits
+    """    
 
-    # requesting and asking for what device to use for input
+
     def __init__(self, port):
+        """Initialising of experiment by opening the device with the given port
+
+        Args:
+            port (string): Identification string of the device to use
+        """        
         self.device = ArduinoVISADevice(port = str(list_devices()[int(port)]))
 
-    # converting of digital to analog for voltage
+
     def dac_volt(self, bits, max_bits, max_volts):
+        """Converts a digital voltage value to an analog value
+            The calculation assumes a linear dispersion of the analog voltage along the digital values
+
+        Args:
+            bits (int): Digital measured value in bits
+            max_bits (int): Maximum amount of bits the device can measure
+            max_volts (float): Maximum voltage the device can output
+
+        Returns:
+            float: Analog voltage value of the measured digital value
+        """        
         return int(bits) / max_bits * max_volts
 
-    # measuring and calculating the u,i characteristics of a diode
+
     def scan(self, start, stop):
+        """Measurement of of the voltage and current over the LED between a given start and stop value in bits
+
+        Args:
+            start (int): Starting value of measurement in bits
+            stop (int): Stopping value of measurement in bits
+
+        Returns:
+            list: A list of 2 lists containg the voltage and current over and through the LED
+        """        
         max_bits = 2 ** 10
         max_volts = 3.3
         voltage_led, current_led = [], []
         resistance = 220
-
-        # requesting, converting and calculating of voltage and current and error
+     
         for i in range(start, stop):
 
-            # request and converting
             self.device.set_output_value(value = i, channel = 0)
             volt_total = self.dac_volt(self.device.get_input_value(channel = 1), max_bits, max_volts)
             volt_resistance = self.dac_volt(self.device.get_input_value(channel = 2), max_bits, max_volts)
 
-            # calculating of voltage and current
             volt_led = volt_total - volt_resistance
             i_led = volt_resistance / resistance
 
@@ -42,42 +71,68 @@ class DiodeExperiment:
 
         return voltage_led, current_led
 
-    # calculations of errors and average of multiple measurements
     def measurements(self, N, start, stop):
+        """Measures and calculates the voltage, current and error(if N > 1) N times for a given start and stop value.
+            Results are given to self variables so these can be requested seperatly if needed.
+
+        Args:
+            N (int): amount of times the experiment has to run
+            start (int): Starting value of measurement in bits
+            stop (int): Stopping value of measurement in bits
+        """        
         measured_currents, measured_voltages,  = [], []
 
-        # measuring and calculating voltage and current 
         for i in range(N):
             measured = self.scan(start, stop)
             measured_currents.append(measured[1])
             measured_voltages.append(measured[0])
 
-        # transposing of the array of arrays to get the first, second, ... value of every array into a single array
         transposed_current = np.array(measured_currents).T
         transposed_voltage = np.array(measured_voltages).T
         
-        # averaging all values of the transposed array
         self.current_average = np.average(transposed_current, axis = 1)
         self.voltage_average = np.average(transposed_voltage, axis = 1)
         
-        # calculating erros of all measurements
         self.c_err = [np.std(i) / math.sqrt(N) for i in transposed_current]
         self.v_err = [np.std(i) / math.sqrt(N) for i in transposed_voltage]
         self.device.close_device()
     
-    # requesting of different measured values
-    def get_current(self):
+    def get_current(self):        
+        """Request the averages of the currents after the measurements
+
+        Returns:
+            list: Average current of the experiments conducted
+        """        
         return self.current_average
 
     def get_voltage(self):
+        """Request the averages of the voltages after the measurements
+
+        Returns:
+            list: Average voltages of the experiments conducted
+        """            
         return self.voltage_average
 
     def get_err_current(self):
+        """Request errors on the current after the measurements
+
+        Returns:
+            list: Erros on the current of the experiments conducted
+        """            
         return self.c_err
 
     def get_err_voltage(self):
+        """Request errors on the voltage after the measurements
+
+        Returns:
+            list: Errors on the voltage of the experiments conducted
+        """             
         return self.v_err
 
-    # requesting of identification
     def identification(self):
+        """Requesting of identification of the used device
+
+        Returns:
+            string: Identification of device
+        """        
         return self.device.get_identification
