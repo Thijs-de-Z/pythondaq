@@ -76,7 +76,6 @@ class ArduinoVISADevice:
         """        
         return self.output
 
-    # requesting of channel value
     def get_input_value(self, channel):
         """Requesting of the value being recieved by a channel
 
@@ -89,7 +88,6 @@ class ArduinoVISADevice:
         self.value = self.channel_value(channel = channel) 
         return self.value
 
-    # closing of device
     def close_device(self):
         """Sets output value to 0 and closes the device
         """        
