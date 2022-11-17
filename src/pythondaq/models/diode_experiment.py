@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 
-def init(device = True):
+def init(device):
     """Requesting of information of device(s). Uses an optional argument to request all devices
 
     Args:
@@ -13,7 +13,7 @@ def init(device = True):
     Returns:
         list, str: Returns information of device(s)
     """
-    if device == True:
+    if device == "true":
         return info_devices()
 
     else: 

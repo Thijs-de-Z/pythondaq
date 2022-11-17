@@ -26,7 +26,7 @@ def listing():
 @click.option(
     "-d",
     "--device",
-    #default = True,
+    default = "true",
     type = str,
     help = "Device to request information from.",
     show_default = True,
