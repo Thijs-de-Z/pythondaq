@@ -1,5 +1,5 @@
 # primitive view to use for an experiment with an LED and resistor
-from pythondaq.models.diode_experiment import DiodeExperiment, init
+from pythondaq.models.diode_experiment import DiodeExperiment, init, list_devices
 from pythondaq.views.saving import data_to_csv
 import matplotlib.pyplot as plt
 
@@ -12,12 +12,12 @@ def i_u_characteristic():
     """    
 
     print('devices')
-    init()
+    init('true')
     inpt = input("Please choose the index of the device to use: ")
 
     N = input("How many measurements do you want to take? ")
 
-    measurements = DiodeExperiment(inpt)
+    measurements = DiodeExperiment(str(list_devices()[int(inpt)]))
 
     measurements.measurements(N = int(N), start = 0, stop = 1024)
 

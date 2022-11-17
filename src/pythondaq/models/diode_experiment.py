@@ -28,6 +28,19 @@ def info():
     """
     return list_devices()
 
+def adc(volts, max_volts, max_bits):
+    """_summary_
+
+    Args:
+        volts (_type_): _description_
+        max_volts (_type_): _description_
+        max_bits (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """    
+    return int(volts / max_volts * max_bits)
+
 
 class DiodeExperiment:
     """Experiment for the I,U characteristics of a diode by measuring the voltages a LED and resistor
@@ -41,7 +54,7 @@ class DiodeExperiment:
         Args:
             port (string): Identification string of the device to use
         """        
-        self.device = ArduinoVISADevice(port = str(list_devices()[int(port)]))
+        self.device = ArduinoVISADevice(port = port)
 
 
     def dac_volt(self, bits, max_bits, max_volts):
@@ -73,7 +86,6 @@ class DiodeExperiment:
         max_volts = 3.3
         voltage_led, current_led = [], []
         resistance = 220
-     
         for i in range(start, stop):
 
             self.device.set_output_value(value = i, channel = 0)

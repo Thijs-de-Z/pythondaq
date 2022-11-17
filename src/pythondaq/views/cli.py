@@ -37,7 +37,6 @@ def information(device):
         device (str): Device of which information is requested
     """
     init(device)
-    return
 
 
 @cmd_group.command(
@@ -60,13 +59,24 @@ def information(device):
 @click.option(
     "-d",
     "--device",
-    default = False,
+    default = 'false',
     type = str,
+    show_default = True
 )
-def scanning(begin, end):
-    experiment = DiodeExperiment
-    results = experiment.scan(begin, end)   # does not work yet
-    return print(results)
+def scanning(begin, end, device):
+
+
+    if device == 'false':
+        print('No device has been selected. Please try again')
+
+    elif device not in info():
+        print('Device is not available please use >>start_experiment info to see all available devices.')
+
+    else:
+        experiment = DiodeExperiment(device)
+        results = experiment.scan(begin, end)
+        print(results)
+
 
 if __name__ == "__main__":
     cmd_group()
