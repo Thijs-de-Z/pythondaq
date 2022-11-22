@@ -1,18 +1,34 @@
 import click
 from pythondaq.models.diode_experiment import DiodeExperiment, init, info
+from pythondaq.views.saving import data_to_csv
+from pythondaq.views.graph import graphing
 
 
-def experiment_start(begin, end, device, repeats, output, graph):
-    if device.isdigit():
-        experiment = DiodeExperiment(info()[int(device)])
-    else:
-        experiment = DiodeExperiment(device)
-      
-    results = experiment.scan(begin, end)
+def experiment_start(begin, end, device, repeats, save, graph):
+    """Runs the experiment(s) for the diode with the given arguments.
 
+    Args:
+        begin (float): Start voltage
+        end (float): End voltage 
+        device (str): Identification string of the device to use
+        repeats (int): Amount of times to run the experiment. If =1 no errors are calculated
+        save (str): Filename to save the data to. Defaults to "none" saving no data
+        graph (bool): Argument to show the graph of the experiment(s)
+    """    
+    experiment = DiodeExperiment(device)
+    experiment.measurements(N=repeats, start=begin, stop=end)
 
-    experiment.device.close_device()
-    pass
+    current = experiment.get_current()
+    voltage = experiment.get_voltage()
+    c_err = experiment.get_err_current()
+    v_err = experiment.get_err_voltage()
+
+    if save != "none":
+        data_to_csv(voltage_w_err=[voltage, v_err], current_w_err=[current, c_err], filename=save)
+    
+    if graph:
+        graphing(current=current, voltage=voltage, c_err=c_err, v_err=v_err)
+
 
 @click.group()
 def cmd_group():
@@ -77,16 +93,16 @@ def information(device):
     show_default = True
 )
 @click.option(
-    "-repeats",
+    "-r",
     "--repeats",
     default = 1,
     type = int,
     show_default = True,
 )
 @click.option(
-    "-o",
-    "--output",
-    default = "/today",
+    "-s",
+    "--save",
+    default = "none",
     type = str,
     show_default = True,
 )
@@ -96,7 +112,7 @@ def information(device):
     type = bool,
     show_default = True,
 )
-def scanning(begin, end, device, repeats, output, graph):
+def scanning(begin, end, device, repeats, save, graph):
     """Performs a single scan. The begin and end voltage can be given and the device can be given (index and string identification works)\f
 
     Args:
@@ -110,17 +126,17 @@ def scanning(begin, end, device, repeats, output, graph):
 
     elif device.isdigit():
         try:
-            experiment_start(begin=begin, end=end, device=device, repeats=repeats, output=output
-                            , graph=graph)
+            experiment_start(begin=begin, end=end, device=info()[int(device)], repeats=repeats, save=save
+                                , graph=graph)
 
         except:
-            print('Device is not available please use ">>start_experiment info" to see all available devices.')
+            print('Device is not available please use ">>cli info" to see all available devices.')
 
     elif device not in info():
-        print('Device is not available please use ">>start_experiment info" to see all available devices.')
+        print('Device is not available please use ">>cli info" to see all available devices.')
 
     else:
-        experiment_start(begin=begin, end=end, device=device, repeats=repeats, output=output
+        experiment_start(begin=begin, end=end, device=device, repeats=repeats, save=save
                         , graph=graph)
 
 
