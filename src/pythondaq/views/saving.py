@@ -12,7 +12,6 @@ def path_check(path):
     Returns:
         bool: True/False dependent if the path is writable
     """    
-
     if not os.path.exists(path):
 
         try:
@@ -36,7 +35,6 @@ def data_to_csv(voltage_w_err, current_w_err, filename = None):
     """    
     today = f'{date.today()}'
     path = f'../data/{today}'
-
 
     if path_check(path):
         indx = 0

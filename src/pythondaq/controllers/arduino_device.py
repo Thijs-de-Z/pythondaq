@@ -63,6 +63,7 @@ class ArduinoVISADevice:
 
         return self.device.query(f"MEAS:CH{channel}?")
 
+
     def get_identification(self):
         """Requesting of identification of the used device
 
@@ -71,6 +72,7 @@ class ArduinoVISADevice:
         """   
 
         return self.device.query("*IDN?")
+
 
     def set_output_value(self, value, channel):
         """Setting the output value of a given channel
@@ -83,6 +85,7 @@ class ArduinoVISADevice:
         self.output = value
         self.device.query(f"OUT:CH{channel} {value}")
 
+
     def get_output_value(self):
         """Requesting of the last output value
 
@@ -90,6 +93,7 @@ class ArduinoVISADevice:
             int: Output value in bits
         """        
         return self.output
+
 
     def get_input_value(self, channel):
         """Requesting of the value being recieved by a channel
@@ -102,6 +106,7 @@ class ArduinoVISADevice:
         """        
         self.value = self.channel_value(channel = channel) 
         return self.value
+
 
     def close_device(self):
         """Sets output value to 0 and closes the device

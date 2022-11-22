@@ -10,7 +10,6 @@ def i_u_characteristic():
     Has the option to save the data to a csv file.
     Setting of device and number of experiments is done through a text interface.
     """    
-
     print('devices')
     init('true')
     inpt = input("Please choose the index of the device to use: ")

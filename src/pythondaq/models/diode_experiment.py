@@ -28,6 +28,7 @@ def info():
     """
     return list_devices()
 
+
 def adc(volts, max_volts, max_bits):
     """converts an analog voltage value to a digital value
 
@@ -40,6 +41,7 @@ def adc(volts, max_volts, max_bits):
         int: digital signal corresponding with the input voltage
     """    
     return int(volts / max_volts * max_bits)
+
 
 def dac_volt(bits, max_bits, max_volts):
     """Converts a digital voltage value to an analog value
@@ -61,7 +63,6 @@ class DiodeExperiment:
         The experiment uses 2^10 bits
     """    
 
-
     def __init__(self, port):
         """Initialising of experiment by opening the device with the given port
 
@@ -69,6 +70,7 @@ class DiodeExperiment:
             port (string): Identification string of the device to use
         """        
         self.device = ArduinoVISADevice(port = port)
+
 
     def scan(self, start, stop):
         """Measurement of of the voltage and current over the LED between a given start and stop value in bits
@@ -84,6 +86,8 @@ class DiodeExperiment:
         max_volts = 3.3
         voltage_led, current_led = [], []
         resistance = 220
+
+        # converts start and stop values to bits if the given value is a float
         if isinstance(start, float):
             start = adc(start, max_volts, max_bits)
 
@@ -91,7 +95,6 @@ class DiodeExperiment:
             stop = adc(stop, max_volts, max_bits)
 
         for i in range(start, stop):
-
             self.device.set_output_value(value = i, channel = 0)
             volt_total = dac_volt(self.device.get_input_value(channel = 1), max_bits, max_volts)
             volt_resistance = dac_volt(self.device.get_input_value(channel = 2), max_bits, max_volts)
@@ -103,6 +106,7 @@ class DiodeExperiment:
             current_led.append(i_led)
 
         return voltage_led, current_led
+
 
     def measurements(self, N, start, stop):
         """Measures and calculates the voltage, current and error(if N > 1) N times for a given start and stop value.
@@ -130,6 +134,7 @@ class DiodeExperiment:
         self.v_err = [np.std(i) / math.sqrt(N) for i in transposed_voltage]
         self.device.close_device()
     
+
     def get_current(self):        
         """Request the averages of the currents after the measurements
 
@@ -137,6 +142,7 @@ class DiodeExperiment:
             list: Average current of the experiments conducted
         """        
         return self.current_average
+
 
     def get_voltage(self):
         """Request the averages of the voltages after the measurements
@@ -146,6 +152,7 @@ class DiodeExperiment:
         """            
         return self.voltage_average
 
+
     def get_err_current(self):
         """Request errors on the current after the measurements
 
@@ -154,6 +161,7 @@ class DiodeExperiment:
         """            
         return self.c_err
 
+
     def get_err_voltage(self):
         """Request errors on the voltage after the measurements
 
@@ -161,6 +169,7 @@ class DiodeExperiment:
             list: Errors on the voltage of the experiments conducted
         """             
         return self.v_err
+
 
     def identification(self):
         """Requesting of identification of the used device

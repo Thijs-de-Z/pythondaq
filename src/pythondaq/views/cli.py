@@ -41,7 +41,7 @@ def cmd_group():
     "list",
 )
 def listing():
-    """Requests a list of all visible devices and their identification
+    """Requests a list of all visible devices and their identification\f
 
     Returns:
         list: Returns a list of visible devices
@@ -63,7 +63,7 @@ def listing():
 def information(device):
     """Returns the information of the device. If no argument is given it returns information of all devices.\f
     Args:
-        device (str): Device of which information is requested
+        device (str): Device of which information is requested.
     """
     init(device)
 
@@ -76,6 +76,7 @@ def information(device):
     "--begin",
     default = 0,
     type = click.FloatRange(0, 3.3),
+    help = "Starting value of measurements in volts.",
     show_default = True,
 )
 @click.option(
@@ -83,6 +84,7 @@ def information(device):
     "--end",
     default = 3.3,
     type = click.FloatRange(0, 3.3),
+    help = "Ending value of measurements in volts.",
     show_default = True,
 )
 @click.option(
@@ -90,6 +92,7 @@ def information(device):
     "--device",
     default = 'false',
     type = str,
+    help = "Device to use, input can be its identification string or index in the list of devices.",
     show_default = True
 )
 @click.option(
@@ -97,6 +100,7 @@ def information(device):
     "--repeats",
     default = 1,
     type = int,
+    help = "Amount of experiments to run.",
     show_default = True,
 )
 @click.option(
@@ -104,16 +108,18 @@ def information(device):
     "--save",
     default = "none",
     type = str,
+    help = "Filename to save the data to. If none is given do not save",
     show_default = True,
 )
 @click.option(
     "--graph/--no-graph",
     default = False,
     type = bool,
+    help = "Option to show a graph visualising the data",
     show_default = True,
 )
 def scanning(begin, end, device, repeats, save, graph):
-    """Performs a single scan. The begin and end voltage can be given and the device can be given (index and string identification works)\f
+    """Measures the i,u characteristics of a diode.\f
 
     Args:
         begin (float): Begin voltage in volts
