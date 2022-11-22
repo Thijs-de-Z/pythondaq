@@ -2,9 +2,13 @@ import click
 from pythondaq.models.diode_experiment import DiodeExperiment, init, info
 from pythondaq.views.saving import data_to_csv
 from pythondaq.views.graph import graphing
+import math
+from lmfit import Model
+import numpy as np
+#TODO
+# Work out the fitting of the Shockley model
 
-
-def experiment_start(begin, end, device, repeats, save, graph):
+def experiment_start(begin, end, device, repeats, save, graph, fit, printing):
     """Runs the experiment(s) for the diode with the given arguments.
 
     Args:
@@ -14,6 +18,8 @@ def experiment_start(begin, end, device, repeats, save, graph):
         repeats (int): Amount of times to run the experiment. If =1 no errors are calculated
         save (str): Filename to save the data to. Defaults to "none" saving no data
         graph (bool): Argument to show the graph of the experiment(s)
+        fit (bool): Argument to fit the result to the Shockley model.
+        printing (bool): Argument to print the results in the terminal.
     """    
     experiment = DiodeExperiment(device)
     experiment.measurements(N=repeats, start=begin, stop=end)
@@ -28,6 +34,17 @@ def experiment_start(begin, end, device, repeats, save, graph):
     
     if graph:
         graphing(current=current, voltage=voltage, c_err=c_err, v_err=v_err)
+
+    if fit:                                                                        #TODO Work out the fitting of the Shockley model
+        model = Model(model)
+        result = model.fit(current, x = voltage, weigths = [1/i for i in c_err])
+        print(result.fit_report())
+
+    if printing:
+        print(f"The measured voltage is: {current}")
+        print(f"With its error: {np.array(c_err)}")
+        print(f"The calculated current is: {current}")
+        print(f"With its error: {np.array(c_err)}")
 
 
 def device_id_string(string):
@@ -45,6 +62,10 @@ def device_id_string(string):
             devices.append(i)
 
     return devices
+
+def model(x, a, b):
+    return a * (math.e ** (x / b) - 1)
+
 
 
 @click.group()
@@ -173,7 +194,21 @@ def information(device):
     help = "Option to choose the index of the device to use instead of its identification string",
     show_default = True,
 )
-def scanning(begin, end, device, repeats, save, graph, index):
+@click.option(
+    '--fit/--no-fit',
+    default = False,
+    type = bool,
+    help = "Fitting of the results to the model of Schockley",
+    show_default = True
+)
+@click.option(
+    '--printing/--no-printing',
+    default = False,
+    type = bool,
+    help = "Optrion to print the results",
+    show_default = True,
+)
+def scanning(begin, end, device, repeats, save, graph, index, fit, printing):
     """Measures the i,u characteristics of a diode.\f
 
     Args:
@@ -184,6 +219,8 @@ def scanning(begin, end, device, repeats, save, graph, index):
         save (str): Filename to save the data to. If none is given do not save.
         graph (bool): Option to show a graph visualising the data. Default is False
         index (bool): Option to use index of device instead of its identification string. Default is False
+        fit (bool): Option to fit the result to the Shockley model.
+        print (bool): Option to print the results in the terminal.
     """
 
     devices = device_id_string(device)   
@@ -193,10 +230,10 @@ def scanning(begin, end, device, repeats, save, graph, index):
     elif device.isdigit() and index:                    # if device index is used instead of its identification/search string
         try:
             experiment_start(begin=begin, end=end, device=info()[int(device)], repeats=repeats, save=save
-                                , graph=graph)
+                                , graph=graph, fit=fit, printing=printing)
 
         except:
-            print('Device is not available please use ">>cli info" to see all available devices.')
+            print("Unexpected error occured, please check if the right device is chosen or try using less options. (fit option not functionable yet)")
 
     elif len(devices) == 0:                             # if no devices contain the search string
         print('No Device contains that search string!')
@@ -211,7 +248,7 @@ def scanning(begin, end, device, repeats, save, graph, index):
         device = devices[0]
         try:
             experiment_start(begin=begin, end=end, device=device, repeats=repeats, save=save
-                            , graph=graph)
+                            , graph=graph, fit=fit, printing=printing)
         except:
             print("Unexpected error occured, please check if the right device is chosen.")
 

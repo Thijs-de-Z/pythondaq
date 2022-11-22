@@ -2,6 +2,7 @@
 from pythondaq.controllers.arduino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
 import math
+from rich import progress_bar
 
 
 def init(device):
