@@ -40,13 +40,34 @@ def cmd_group():
 @cmd_group.command(
     "list",
 )
-def listing():
+@click.option(
+    "-s",
+    "--search",
+    default = f"{info()}",
+    type = str,
+    help = "Search for devices with the given search string",
+    show_default = True,
+)
+def listing(search):
     """Requests a list of all visible devices and their identification\f
+    Args:
+        search (str): search string to identify devices containg this string.
 
     Returns:
-        list: Returns a list of visible devices
+        list: Returns a list of the requested devices
     """    
-    return print(info())
+    devices = []
+    for i in info():
+        if i.__contains__(search):
+            devices.append(i)
+
+    if len(devices) == 0:
+        print("No devices matched with that search term!")
+
+    else:
+        print("These devices matched your search term:")
+        for j in devices:
+            print(j)
 
 
 @cmd_group.command(
