@@ -63,19 +63,43 @@ def information(device):
     type = str,
     show_default = True
 )
-def scanning(begin, end, device):
+@click.option(
+    "--graph/--no-graph",
+    default = False,
+    type = bool,
+    show_default = True,
+)
+def scanning(begin, end, device, graph):
+    """Performs a single scan. The begin and end voltage can be given and the device can be given (index and string identification works)\f
 
+    Args:
+        begin (float): Begin voltage in volts
+        end (float): End voltage in volts
+        device (int, str): Identification of the device. Can be the identification string or its index in the list of devices.
+    """    
 
     if device == 'false':
         print('No device has been selected. Please try again')
 
+    elif device.isdigit():
+        try:
+            experiment = DiodeExperiment(info()[int(device)])
+            results = experiment.scan(begin, end)
+            print(results)
+            experiment.device.close_device()
+
+        except:
+            print('Device is not available please use ">>start_experiment info" to see all available devices.')
+
     elif device not in info():
-        print('Device is not available please use >>start_experiment info to see all available devices.')
+        print('Device is not available please use ">>start_experiment info" to see all available devices.')
 
     else:
         experiment = DiodeExperiment(device)
         results = experiment.scan(begin, end)
         print(results)
+        experiment.device.close_device()
+        
 
 
 if __name__ == "__main__":

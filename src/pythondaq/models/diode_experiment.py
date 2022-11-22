@@ -29,17 +29,31 @@ def info():
     return list_devices()
 
 def adc(volts, max_volts, max_bits):
-    """_summary_
+    """converts an analog voltage value to a digital value
 
     Args:
-        volts (_type_): _description_
-        max_volts (_type_): _description_
-        max_bits (_type_): _description_
+        volts (float): Analog value in volts
+        max_volts (float): Maximum voltage the device can output
+        max_bits (int): Maximum amount of bits the device can handle
 
     Returns:
-        _type_: _description_
+        int: digital signal corresponding with the input voltage
     """    
     return int(volts / max_volts * max_bits)
+
+def dac_volt(bits, max_bits, max_volts):
+    """Converts a digital voltage value to an analog value
+        The calculation assumes a linear dispersion of the analog voltage along the digital values
+
+    Args:
+        bits (int): Digital value in bits
+        max_bits (int): Maximum amount of bits the device can handle
+        max_volts (float): Maximum voltage the device can output
+
+    Returns:
+        float: Analog voltage value of the digital value
+    """        
+    return int(bits) / max_bits * max_volts
 
 
 class DiodeExperiment:
@@ -56,22 +70,6 @@ class DiodeExperiment:
         """        
         self.device = ArduinoVISADevice(port = port)
 
-
-    def dac_volt(self, bits, max_bits, max_volts):
-        """Converts a digital voltage value to an analog value
-            The calculation assumes a linear dispersion of the analog voltage along the digital values
-
-        Args:
-            bits (int): Digital measured value in bits
-            max_bits (int): Maximum amount of bits the device can measure
-            max_volts (float): Maximum voltage the device can output
-
-        Returns:
-            float: Analog voltage value of the measured digital value
-        """        
-        return int(bits) / max_bits * max_volts
-
-
     def scan(self, start, stop):
         """Measurement of of the voltage and current over the LED between a given start and stop value in bits
 
@@ -86,11 +84,17 @@ class DiodeExperiment:
         max_volts = 3.3
         voltage_led, current_led = [], []
         resistance = 220
+        if isinstance(start, float):
+            start = adc(start, max_volts, max_bits)
+
+        if isinstance(stop, float):
+            stop = adc(stop, max_volts, max_bits)
+
         for i in range(start, stop):
 
             self.device.set_output_value(value = i, channel = 0)
-            volt_total = self.dac_volt(self.device.get_input_value(channel = 1), max_bits, max_volts)
-            volt_resistance = self.dac_volt(self.device.get_input_value(channel = 2), max_bits, max_volts)
+            volt_total = dac_volt(self.device.get_input_value(channel = 1), max_bits, max_volts)
+            volt_resistance = dac_volt(self.device.get_input_value(channel = 2), max_bits, max_volts)
 
             volt_led = volt_total - volt_resistance
             i_led = volt_resistance / resistance
