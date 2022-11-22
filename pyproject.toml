@@ -21,4 +21,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 characteristic = "pythondaq.views.view:i_u_characteristic"
 current_devices = "pythondaq.controllers.arduino_device:info_devices"
-start_experiment = "pythondaq.views.cli:cmd_group"
+cli = "pythondaq.views.cli:cmd_group"

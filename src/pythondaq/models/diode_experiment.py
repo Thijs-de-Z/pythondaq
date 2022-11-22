@@ -8,7 +8,7 @@ def init(device):
     """Requesting of information of device(s). Uses an optional argument to request all devices
 
     Args:
-        device (bool, list, str): Device(s) to request information of. Defaults to True.
+        device (bool, list, str): Device(s) to request information of. Defaults to "true".
 
     Returns:
         list, str: Returns information of device(s)

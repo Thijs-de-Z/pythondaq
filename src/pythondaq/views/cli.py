@@ -1,5 +1,18 @@
 import click
-from pythondaq.models.diode_experiment import DiodeExperiment, init, info, adc_volt
+from pythondaq.models.diode_experiment import DiodeExperiment, init, info
+
+
+def experiment_start(begin, end, device, repeats, output, graph):
+    if device.isdigit():
+        experiment = DiodeExperiment(info()[int(device)])
+    else:
+        experiment = DiodeExperiment(device)
+      
+    results = experiment.scan(begin, end)
+
+
+    experiment.device.close_device()
+    pass
 
 @click.group()
 def cmd_group():
@@ -64,12 +77,26 @@ def information(device):
     show_default = True
 )
 @click.option(
+    "-repeats",
+    "--repeats",
+    default = 1,
+    type = int,
+    show_default = True,
+)
+@click.option(
+    "-o",
+    "--output",
+    default = "/today",
+    type = str,
+    show_default = True,
+)
+@click.option(
     "--graph/--no-graph",
     default = False,
     type = bool,
     show_default = True,
 )
-def scanning(begin, end, device, graph):
+def scanning(begin, end, device, repeats, output, graph):
     """Performs a single scan. The begin and end voltage can be given and the device can be given (index and string identification works)\f
 
     Args:
@@ -83,10 +110,8 @@ def scanning(begin, end, device, graph):
 
     elif device.isdigit():
         try:
-            experiment = DiodeExperiment(info()[int(device)])
-            results = experiment.scan(begin, end)
-            print(results)
-            experiment.device.close_device()
+            experiment_start(begin=begin, end=end, device=device, repeats=repeats, output=output
+                            , graph=graph)
 
         except:
             print('Device is not available please use ">>start_experiment info" to see all available devices.')
@@ -95,13 +120,8 @@ def scanning(begin, end, device, graph):
         print('Device is not available please use ">>start_experiment info" to see all available devices.')
 
     else:
-        experiment = DiodeExperiment(device)
-        begin = adc_volt(begin, 3.3, 2**10)
-        end = adc_volt(end, 3.3, 2**10)
-        results = experiment.scan(begin, end)
-        print(results)
-        experiment.device.close_device()
-        
+        experiment_start(begin=begin, end=end, device=device, repeats=repeats, output=output
+                        , graph=graph)
 
 
 if __name__ == "__main__":

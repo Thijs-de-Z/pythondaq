@@ -1,6 +1,6 @@
 # primitive view to use for an experiment with an LED and resistor
 from pythondaq.models.diode_experiment import DiodeExperiment, init, list_devices
-from pythondaq.views.saving import data_to_csv
+from pythondaq.views.saving import data_to_csv, graph
 import matplotlib.pyplot as plt
 
 
@@ -29,10 +29,5 @@ def i_u_characteristic():
     if input("would you like to save the data [Y/N]? ") == 'Y' or 'y' or 'yes':
         data_to_csv([voltage, v_err], [current, c_err])
 
-    plt.figure()
-    plt.title('I,U characteristics of a LED')
-    plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
-    plt.xlim([0, 3.3])
-    plt.xlabel('Voltage (U)')
-    plt.ylabel('Current (I)')
-    plt.show()
+    if input("Would you like to see the results [Y/N]? ") == 'Y' or 'y' or 'yes':
+        graph(current, voltage, c_err, v_err)
