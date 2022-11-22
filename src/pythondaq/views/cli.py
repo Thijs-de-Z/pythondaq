@@ -30,6 +30,23 @@ def experiment_start(begin, end, device, repeats, save, graph):
         graphing(current=current, voltage=voltage, c_err=c_err, v_err=v_err)
 
 
+def device_id_string(string):
+    """Searches in visible devices if they contain a search string.
+
+    Args:
+        string (str): Search string to search for in visible devices
+
+    Returns:
+        list: Devices containing the requested search string
+    """    
+    devices = []
+    for i in info():
+        if i.__contains__(string):
+            devices.append(i)
+
+    return devices
+
+
 @click.group()
 def cmd_group():
     """Making of terminal command group
@@ -52,17 +69,10 @@ def listing(search):
     """Requests a list of all visible devices and their identification\f
     Args:
         search (str): search string to identify devices containg this string.
-
-    Returns:
-        list: Returns a list of the requested devices
-    """    
-    devices = []
-    for i in info():
-        if i.__contains__(search):
-            devices.append(i)
-
+    """
+    devices = device_id_string(search)
     if len(devices) == 0:
-        print("No devices matched with that search term!")
+        print("No devices contains that search string!")
 
     else:
         print("These devices matched your search term:")
@@ -78,15 +88,22 @@ def listing(search):
     "--device",
     default = "true",
     type = str,
-    help = "Device to request information from.",
+    help = "Device or search string to request information from.",
     show_default = True,
 )
 def information(device):
     """Returns the information of the device. If no argument is given it returns information of all devices.\f
     Args:
-        device (str): Device of which information is requested.
+        device (str): Device/search string of which information is requested.
     """
-    init(device)
+    devices = device_id_string(device)
+    if len(devices) == 0:
+        print("No devices contains that search string!")
+    
+    else:
+        print("Information of devices which contain the search string:")
+        for i in devices:
+            init(i)
 
 
 @cmd_group.command(
@@ -113,7 +130,7 @@ def information(device):
     "--device",
     default = 'false',
     type = str,
-    help = "Device to use, input can be its identification string or index in the list of devices.",
+    help = "Device to use, input can be its identification string, index or search string.",
     show_default = True
 )
 @click.option(
@@ -139,19 +156,31 @@ def information(device):
     help = "Option to show a graph visualising the data",
     show_default = True,
 )
-def scanning(begin, end, device, repeats, save, graph):
+@click.option(
+    '--index/--no-index',
+    default = False,
+    type = bool,
+    help = "Option to choose the index of the device to use instead of its identification string",
+    show_default = True,
+)
+def scanning(begin, end, device, repeats, save, graph, index):
     """Measures the i,u characteristics of a diode.\f
 
     Args:
-        begin (float): Begin voltage in volts
-        end (float): End voltage in volts
-        device (int, str): Identification of the device. Can be the identification string or its index in the list of devices.
-    """    
-
-    if device == 'false':
+        begin (float): Starting value of measurements in volts. Default is 0
+        end (float): Ending value of measurements in volts. Default is 3.3
+        device (str): Device to use, input can be its identification string, index or search string.
+        repeats (int): Amount of experiments to run. Default is 1
+        save (str): Filename to save the data to. If none is given do not save.
+        graph (bool): Option to show a graph visualising the data. Default is False
+        index (bool): Option to use index of device instead of its identification string. Default is False
+    """
+    
+    devices = device_id_string(device)   
+    if device == 'false':                               # if no device is given
         print('No device has been selected. Please try again')
 
-    elif device.isdigit():
+    elif device.isdigit() and index:                    # if device index is used instead of its identification/search string
         try:
             experiment_start(begin=begin, end=end, device=info()[int(device)], repeats=repeats, save=save
                                 , graph=graph)
@@ -159,12 +188,22 @@ def scanning(begin, end, device, repeats, save, graph):
         except:
             print('Device is not available please use ">>cli info" to see all available devices.')
 
-    elif device not in info():
-        print('Device is not available please use ">>cli info" to see all available devices.')
+    elif len(devices) == 0:                             # if no devices contain the search string
+        print('No Device contains that search string!')
 
-    else:
-        experiment_start(begin=begin, end=end, device=device, repeats=repeats, save=save
-                        , graph=graph)
+    elif len(devices) > 1:                              # if multiple devices contain the search string
+        print('Multiple devices contain that search string. Please be more specific')
+        print('Devices containing that search string:')
+        for i in devices:
+            init(i)
+
+    else:                                               
+        device = devices[0]
+        try:
+            experiment_start(begin=begin, end=end, device=device, repeats=repeats, save=save
+                            , graph=graph)
+        except:
+            print("Unexpected error occured, please check if the right device is chosen.")
 
 
 if __name__ == "__main__":
