@@ -60,7 +60,7 @@ def cmd_group():
 @click.option(
     "-s",
     "--search",
-    default = f"{info()}",
+    default = "",
     type = str,
     help = "Search for devices with the given search string",
     show_default = True,
@@ -71,7 +71,12 @@ def listing(search):
         search (str): search string to identify devices containg this string.
     """
     devices = device_id_string(search)
-    if len(devices) == 0:
+
+    if search == "":
+        print("No search string given shwoing all devices.")
+        print(info())
+
+    elif len(devices) == 0:
         print("No devices contains that search string!")
 
     else:
@@ -97,7 +102,12 @@ def information(device):
         device (str): Device/search string of which information is requested.
     """
     devices = device_id_string(device)
-    if len(devices) == 0:
+
+    if device == "true":
+        print("No search string given. Showing all devices")
+        init(device)
+
+    elif len(devices) == 0:
         print("No devices contains that search string!")
     
     else:
@@ -175,7 +185,7 @@ def scanning(begin, end, device, repeats, save, graph, index):
         graph (bool): Option to show a graph visualising the data. Default is False
         index (bool): Option to use index of device instead of its identification string. Default is False
     """
-    
+
     devices = device_id_string(device)   
     if device == 'false':                               # if no device is given
         print('No device has been selected. Please try again')
