@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def graph(current, voltage, c_err, v_err):   
+def graphing(current, voltage, c_err, v_err):   
     plt.figure()
     plt.title('I,U characteristics of a LED')
     plt.errorbar(voltage, current, yerr = c_err, xerr = v_err, markersize = 1, color = 'r', fmt = 'o' )
