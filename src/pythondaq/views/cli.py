@@ -1,5 +1,5 @@
 import click
-from pythondaq.models.diode_experiment import DiodeExperiment, init, info
+from pythondaq.models.diode_experiment import DiodeExperiment, init, info, adc_volt
 
 @click.group()
 def cmd_group():
@@ -96,6 +96,8 @@ def scanning(begin, end, device, graph):
 
     else:
         experiment = DiodeExperiment(device)
+        begin = adc_volt(begin, 3.3, 2**10)
+        end = adc_volt(end, 3.3, 2**10)
         results = experiment.scan(begin, end)
         print(results)
         experiment.device.close_device()
