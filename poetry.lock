@@ -202,6 +202,17 @@ python-versions = ">=3.6.8"
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
+name = "pyqtgraph"
+version = "0.13.1"
+description = "Scientific Graphics and GUI Library for Python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+numpy = ">=1.20.0"
+
+[[package]]
 name = "pyserial"
 version = "3.5"
 description = "Python Serial Port Extension"
@@ -211,6 +222,42 @@ python-versions = "*"
 
 [package.extras]
 cp2110 = ["hidapi"]
+
+[[package]]
+name = "pyside6"
+version = "6.4.1"
+description = "Python bindings for the Qt cross-platform application and UI framework"
+category = "main"
+optional = false
+python-versions = "<3.12,>=3.7"
+
+[package.dependencies]
+PySide6-Addons = "6.4.1"
+PySide6-Essentials = "6.4.1"
+shiboken6 = "6.4.1"
+
+[[package]]
+name = "pyside6-addons"
+version = "6.4.1"
+description = "Python bindings for the Qt cross-platform application and UI framework (Addons)"
+category = "main"
+optional = false
+python-versions = "<3.12,>=3.7"
+
+[package.dependencies]
+PySide6-Essentials = "6.4.1"
+shiboken6 = "6.4.1"
+
+[[package]]
+name = "pyside6-essentials"
+version = "6.4.1"
+description = "Python bindings for the Qt cross-platform application and UI framework (Essentials)"
+category = "main"
+optional = false
+python-versions = "<3.12,>=3.7"
+
+[package.dependencies]
+shiboken6 = "6.4.1"
 
 [[package]]
 name = "python-dateutil"
@@ -322,6 +369,14 @@ test = ["pytest (>=6.2)", "virtualenv (>20)"]
 toml = ["setuptools (>=42)"]
 
 [[package]]
+name = "shiboken6"
+version = "6.4.1"
+description = "Python/C++ bindings helper module"
+category = "main"
+optional = false
+python-versions = "<3.12,>=3.7"
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -364,8 +419,8 @@ tests = ["nose", "numpy"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.9"
-content-hash = "8587a591e9471140160ce911f7410e39e5041a38dd7aa2c65bfd06c6902b586d"
+python-versions = ">=3.9,<3.12"
+content-hash = "831eb749bf7da755c8f02cf9b6240fb285bc1538f5f2aa35d3eaf52f822646ab"
 
 [metadata.files]
 asteval = [
@@ -712,9 +767,37 @@ pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
 ]
+pyqtgraph = [
+    {file = "pyqtgraph-0.13.1-py3-none-any.whl", hash = "sha256:906b2784c213890bf2a1df43e3675eff1921ee894ab9673468747fb993ea2d6c"},
+    {file = "pyqtgraph-0.13.1.tar.gz", hash = "sha256:698f87f59db965727b33602a0b29058de21291d8b143dea878b50578aec0dc08"},
+]
 pyserial = [
     {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
     {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
+]
+pyside6 = [
+    {file = "PySide6-6.4.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:a5e56ce84db3453a1522d7bebaeb161f3c95fd5eeeb159f76e79615294772e8a"},
+    {file = "PySide6-6.4.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:e0730024e682dd98ec3637432c98bf682bc8f3e64083acf681a62a1a1a9e2beb"},
+    {file = "PySide6-6.4.1-cp37-abi3-win_amd64.whl", hash = "sha256:c9674ccb1c36e60c458c4a14edbfecf72a331430e18501f7b667f9db496291df"},
+    {file = "PySide6-6.4.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:357af1b85febe54f8c9c3b785ac8d869d40a024bded765525e46cd2b99f6b53a"},
+    {file = "PySide6-6.4.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:03261b61652c0a45ccfb6f34cbbcb3449490926401e9e150b528a862a9f97a95"},
+    {file = "PySide6-6.4.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:88ad906b21a6db13f5046ebec5247972cff5559aa6d462465600c8bc2655d491"},
+]
+pyside6-addons = [
+    {file = "PySide6_Addons-6.4.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:6174d39112ad3ec5fbc86aaaccda71756d8809e716a86bb09e38ed3dcae6d952"},
+    {file = "PySide6_Addons-6.4.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:4530b6b46cec721eb0a3960f2cb618e17ef100ee5b0cbfa95201e87bd4a6b3e8"},
+    {file = "PySide6_Addons-6.4.1-cp37-abi3-win_amd64.whl", hash = "sha256:91873aaefa01736bf39148b19fc62ab824000e9cdd1db9ebf98b5e0712f0f946"},
+    {file = "PySide6_Addons-6.4.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:aa87ade042bfde316479f2dddbc2c66000a0e65ff5bd24291375a21758e07d36"},
+    {file = "PySide6_Addons-6.4.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:d0daf2b685a28f51d2880478b1fd3441c943f8ecfbd41b7dbea3563eb78e8913"},
+    {file = "PySide6_Addons-6.4.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:509ae75aabaf191b07e8e1819efaba1a8bfeda692efbfb8eb5adbfcc8a534d35"},
+]
+pyside6-essentials = [
+    {file = "PySide6_Essentials-6.4.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:f980e9c8ee9b2304d6c71e499e96f351c82e28cbfcf6cc6cde0feffd706af330"},
+    {file = "PySide6_Essentials-6.4.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:457d73bb38cf7fb573a24da00ecb9aa7b8cf6a4cb5cc8ffcce2c241502a6e774"},
+    {file = "PySide6_Essentials-6.4.1-cp37-abi3-win_amd64.whl", hash = "sha256:0d3052ab72daebc15381fb095b673dd75cf4d2f1dc8680b7aabe27537cdde352"},
+    {file = "PySide6_Essentials-6.4.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:3b36d605f28b742dfc676816d440ba6baa51c6f31dd2dbf3a44e28edcf006523"},
+    {file = "PySide6_Essentials-6.4.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:aadd06c09dc51e5894d2fce70210906ce7d981686ceddfff69c47e4227bc1706"},
+    {file = "PySide6_Essentials-6.4.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:4cade08b091a128ca5567a8d23fd25b1825dc18648cfb71dd002f0935ee4c3cc"},
 ]
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
@@ -766,6 +849,14 @@ setuptools = [
 setuptools-scm = [
     {file = "setuptools_scm-7.0.5-py3-none-any.whl", hash = "sha256:7930f720905e03ccd1e1d821db521bff7ec2ac9cf0ceb6552dd73d24a45d3b02"},
     {file = "setuptools_scm-7.0.5.tar.gz", hash = "sha256:031e13af771d6f892b941adb6ea04545bbf91ebc5ce68c78aaf3fff6e1fb4844"},
+]
+shiboken6 = [
+    {file = "shiboken6-6.4.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:6d61061df739e5ed9595f925e4d1de9c98bdabb995ee29d0be88a873a6171e85"},
+    {file = "shiboken6-6.4.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:41e67b67f65626bdd909f9c5fd5f80231ee6ae43418b331590ba225b3cfabd5b"},
+    {file = "shiboken6-6.4.1-cp37-abi3-win_amd64.whl", hash = "sha256:ed6158e8abe4a28530fba27c367dd78038d338f27d44cc8b863cf1fdb8977f2e"},
+    {file = "shiboken6-6.4.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:1c3efc307ed20bf9cea5ceafc089032b33aba95297f70e469b5a19f1070eb1e8"},
+    {file = "shiboken6-6.4.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:7cee2cb6becd29e55913468602fa90554895ad38448d57f1d2ebe681014b087d"},
+    {file = "shiboken6-6.4.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:44f81fe7faa4ee3a313e687c8a4852bba454116822e76f80339b2aa0512cfc6a"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},

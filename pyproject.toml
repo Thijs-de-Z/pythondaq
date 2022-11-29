@@ -5,7 +5,7 @@ description = ""
 authors = ["Thijs-de-Z <thijs.de.zeeuw8@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 matplotlib = "^3.6.2"
 pyvisa = "^1.12.0"
 pyvisa-py = "^0.5.3"
@@ -14,6 +14,8 @@ pandas = "^1.5.1"
 colorama = "^0.4.6"
 rich = "^12.6.0"
 lmfit = "^1.0.3"
+pyside6 = "^6.4.1"
+pyqtgraph = "^0.13.1"
 
 
 [build-system]
@@ -24,3 +26,4 @@ build-backend = "poetry.core.masonry.api"
 characteristic = "pythondaq.views.view:i_u_characteristic"
 current_devices = "pythondaq.controllers.arduino_device:info_devices"
 cli = "pythondaq.views.cli:cmd_group"
+gui = "pythondaq.views.gui:main"

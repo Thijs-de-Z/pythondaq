@@ -3,12 +3,11 @@ from pythondaq.models.diode_experiment import DiodeExperiment, init, info
 from pythondaq.views.saving import data_to_csv
 from pythondaq.views.graph import graphing
 import math
-from lmfit import Model
 import numpy as np
 #TODO
 # Work out the fitting of the Shockley model
 
-def experiment_start(begin, end, device, repeats, save, graph, fit, printing):
+def experiment_start(begin, end, device, repeats, save, graph, printing):
     """Runs the experiment(s) for the diode with the given arguments.
 
     Args:
@@ -34,11 +33,6 @@ def experiment_start(begin, end, device, repeats, save, graph, fit, printing):
     
     if graph:
         graphing(current=current, voltage=voltage, c_err=c_err, v_err=v_err)
-
-    if fit:                                                                        #TODO Work out the fitting of the Shockley model
-        model = Model(model)
-        result = model.fit(current, x = voltage, weigths = [1/i for i in c_err])
-        print(result.fit_report())
 
     if printing:
         print(f"The measured voltage is: {current}")
@@ -195,20 +189,13 @@ def information(device):
     show_default = True,
 )
 @click.option(
-    '--fit/--no-fit',
-    default = False,
-    type = bool,
-    help = "Fitting of the results to the model of Schockley",
-    show_default = True
-)
-@click.option(
     '--printing/--no-printing',
     default = False,
     type = bool,
     help = "Optrion to print the results",
     show_default = True,
 )
-def scanning(begin, end, device, repeats, save, graph, index, fit, printing):
+def scanning(begin, end, device, repeats, save, graph, index, printing):
     """Measures the i,u characteristics of a diode.\f
 
     Args:
@@ -230,7 +217,7 @@ def scanning(begin, end, device, repeats, save, graph, index, fit, printing):
     elif device.isdigit() and index:                    # if device index is used instead of its identification/search string
         try:
             experiment_start(begin=begin, end=end, device=info()[int(device)], repeats=repeats, save=save
-                                , graph=graph, fit=fit, printing=printing)
+                                , graph=graph, printing=printing)
 
         except:
             print("Unexpected error occured, please check if the right device is chosen or try using less options. (fit option not functionable yet)")
@@ -248,7 +235,7 @@ def scanning(begin, end, device, repeats, save, graph, index, fit, printing):
         device = devices[0]
         try:
             experiment_start(begin=begin, end=end, device=device, repeats=repeats, save=save
-                            , graph=graph, fit=fit, printing=printing)
+                            , graph=graph, printing=printing)
         except:
             print("Unexpected error occured, please check if the right device is chosen.")
 
