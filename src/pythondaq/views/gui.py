@@ -1,18 +1,50 @@
 import pyqtgraph as pq
 from PySide6 import QtWidgets
 import sys
-from pythondaq.models.diode_experiment import DiodeExperiment
+from pythondaq.models.diode_experiment import DiodeExperiment, info
+import pandas as pd
+import numpy as np
 
 pq.setConfigOption("background", "w")
 pq.setConfigOption("foreground", "k")
 
+
 class UserInterface(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        self.choose_menu()
+
+    def choose_menu(self):
+        central_widget = QtWidgets.QWidget()
+        self.setCentralWidget(central_widget)
+        vbox = QtWidgets.QVBoxLayout(central_widget)
+
+        self.text = QtWidgets.QLabel()
+        self.text.setText("Please select a device:")
+
+        self.device = QtWidgets.QComboBox()
+        self.device.addItems(info())
+        
+        self.initialise_button = QtWidgets.QPushButton("start interface")
+        self.initialise_button.clicked.connect(self.try_device)
+
+        vbox.addWidget(self.text)
+        vbox.addWidget(self.device)
+        vbox.addWidget(self.initialise_button)
+
+    def try_device(self):
+        try:
+            DiodeExperiment(self.device.currentText())
+            self.init()
+            print(self.device.currentText())
+        except:
+            self.text.setText("device not available")
+
+
+    def init(self):
         self.widgets()
         self.widget_layout()
         self.widget_addition()
-        self.init_attr()
 
     def widget_layout(self):
         central_widget = QtWidgets.QWidget()
@@ -55,19 +87,31 @@ class UserInterface(QtWidgets.QMainWindow):
     
 
     def scanning(self):
-        experiment = DiodeExperiment("ASRL4::INSTR")
-        results = experiment.measurements(1, self.start_value.value(), self.stop_value.value())
-        self.graph(data=[experiment.get_voltage(), experiment.get_current()])
+        experiment = DiodeExperiment(self.device.currentText())
+        results = experiment.measurements(2, self.start_value.value(), self.stop_value.value())
+        self.voltage = experiment.get_voltage()
+        self.err_voltage = experiment.get_err_voltage()
+        self.current = experiment.get_current()
+        self.err_current = experiment.get_err_current()
+        self.graph()
 
 
-    def graph(self, data):
-        self.plot_widget.plot(data[0], data[1], symbol = "o", symbolBrush = "r", symbolPen = 'r', symbolSize = 3, pen=None)
+    def graph(self):
+        errorbar = pq.ErrorBarItem(x=self.voltage, y=self.current, width = 2 * np.array(self.err_voltage), height = 2* np.array(self.err_current), pen={"color": "r"})
+        self.plot_widget.plot(self.voltage, self.current, symbol = "o", symbolBrush = "r", symbolPen = 'r', symbolSize = 3, pen=None)
+        self.plot_widget.addItem(errorbar)
         self.plot_widget.setLabel("left", "current [I]")
         self.plot_widget.setLabel("bottom", "voltage [V]")
     
 
     def save_data(self):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(filter="CSV files (*.csv)")
+        df = {"voltage": self.voltage,
+              "error_voltage": self.err_voltage,  
+              "current": self.current,
+              "error_current": self.err_current}
+        df = pd.DataFrame(df)
+        df.to_csv(filename, index = False, sep = ',')
 
 
 
