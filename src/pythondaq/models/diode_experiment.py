@@ -2,7 +2,7 @@
 from pythondaq.controllers.arduino_device import ArduinoVISADevice, info_devices, list_devices
 import numpy as np
 import math
-from rich import progress_bar
+import threading
 
 
 def init(device):
@@ -71,6 +71,7 @@ class DiodeExperiment:
             port (string): Identification string of the device to use
         """        
         self.device = ArduinoVISADevice(port = port)
+        self.voltage_led, self.current_led = [], []
 
 
     def scan(self, start, stop):
@@ -85,7 +86,7 @@ class DiodeExperiment:
         """        
         max_bits = 2 ** 10
         max_volts = 3.3
-        voltage_led, current_led = [], []
+        self.voltage_led, self.current_led = [], []
         resistance = 220
 
         # converts start and stop values to bits if the given value is a float
@@ -103,10 +104,10 @@ class DiodeExperiment:
             volt_led = volt_total - volt_resistance
             i_led = volt_resistance / resistance
 
-            voltage_led.append(volt_led)
-            current_led.append(i_led)
+            self.voltage_led.append(volt_led)
+            self.current_led.append(i_led)
 
-        return voltage_led, current_led
+        return self.voltage_led, self.current_led
 
 
     def measurements(self, N, start, stop):
@@ -115,8 +116,8 @@ class DiodeExperiment:
 
         Args:
             N (int): amount of times the experiment has to run
-            start (int): Starting value of measurement in bits
-            stop (int): Stopping value of measurement in bits
+            start (int, float): Starting value of measurement in bits or volts
+            stop (int, float): Stopping value of measurement in bits or volts
         """        
         measured_currents, measured_voltages,  = [], []
 
@@ -133,8 +134,20 @@ class DiodeExperiment:
         
         self.c_err = [np.std(i) / math.sqrt(N) for i in transposed_current]
         self.v_err = [np.std(i) / math.sqrt(N) for i in transposed_voltage]
-        self.device.close_device()
-    
+#        self.device.close_device()
+
+
+    def start_measurements(self, N, start, stop):
+        """Starting of the measurements of the voltage and current of a LED in thread.
+
+        Args:
+            N (int): amount of times the experiment has to run
+            start (int, float): Starting value of measurement in bits or volts
+            stop (int, float): Stopping value of measurement in bits or volts
+        """        
+        self._scan_thread = threading.Thread(target=self.measurements, args=(N, start, stop))
+        self._scan_thread.start()
+
 
     def get_current(self):        
         """Request the averages of the currents after the measurements

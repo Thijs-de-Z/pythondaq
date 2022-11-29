@@ -1,5 +1,5 @@
 import pyqtgraph as pq
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 import sys
 from pythondaq.models.diode_experiment import DiodeExperiment, info
 import pandas as pd
@@ -11,43 +11,17 @@ pq.setConfigOption("foreground", "k")
 
 class UserInterface(QtWidgets.QMainWindow):
     def __init__(self):
+        """Initialises the class.
+        """        
         super().__init__()
-        self.choose_menu()
-
-    def choose_menu(self):
-        central_widget = QtWidgets.QWidget()
-        self.setCentralWidget(central_widget)
-        vbox = QtWidgets.QVBoxLayout(central_widget)
-
-        self.text = QtWidgets.QLabel()
-        self.text.setText("Please select a device:")
-
-        self.device = QtWidgets.QComboBox()
-        self.device.addItems(info())
-        
-        self.initialise_button = QtWidgets.QPushButton("start interface")
-        self.initialise_button.clicked.connect(self.try_device)
-
-        vbox.addWidget(self.text)
-        vbox.addWidget(self.device)
-        vbox.addWidget(self.initialise_button)
-
-    def try_device(self):
-        try:
-            DiodeExperiment(self.device.currentText())
-            self.init()
-            self.string_device = self.device.currentText()
-            print(self.device.currentText())
-        except:
-            self.text.setText("device not available")
-
-
-    def init(self):
         self.widgets()
         self.widget_layout()
         self.widget_addition()
+        self.init_attr()
 
     def widget_layout(self):
+        """Creates widget layout of the userinterface.
+        """        
         central_widget = QtWidgets.QWidget()
         self.setCentralWidget(central_widget)
 
@@ -59,6 +33,8 @@ class UserInterface(QtWidgets.QMainWindow):
         
 
     def widgets(self):
+        """Creates all widgets needed to run the userinterface.
+        """        
         self.plot_widget = pq.PlotWidget()
 
         self.start_value = QtWidgets.QDoubleSpinBox()
@@ -70,13 +46,15 @@ class UserInterface(QtWidgets.QMainWindow):
         self.stop_value.setValue(0)
 
         self.start_button = QtWidgets.QPushButton("Start")
-        self.start_button.clicked.connect(self.scanning)
+        self.start_button.clicked.connect(self.start_scanning)
 
         self.save_button = QtWidgets.QPushButton("Save")
         self.save_button.clicked.connect(self.save_data)
     
 
     def widget_addition(self):
+        """Adds a selected amount of widgets to the made layout.
+        """        
         self.hbox_buttons.addWidget(self.start_value)
         self.hbox_buttons.addWidget(self.stop_value)
         self.hbox_buttons.addWidget(self.start_button)
@@ -84,28 +62,59 @@ class UserInterface(QtWidgets.QMainWindow):
 
 
     def init_attr(self):
-        pass
-    
+        """Initialising attributes of the class that are needed to run the program
+        """        
+        self.string_device = "ASRL4::INSTR"
+        self.experiment = DiodeExperiment(self.string_device)
 
-    def scanning(self):
-        experiment = DiodeExperiment(self.string_device)
-        results = experiment.measurements(2, self.start_value.value(), self.stop_value.value())
-        self.voltage = experiment.get_voltage()
-        self.err_voltage = experiment.get_err_voltage()
-        self.current = experiment.get_current()
-        self.err_current = experiment.get_err_current()
-        self.graph()
+    
+    def start_scanning(self):
+        """Starts a thread and creates a timer which calls the function to replot the data every 100ms.
+        """        
+        self.plot_timer = QtCore.QTimer()
+        self.plot_timer.timeout.connect(self.graph)
+        self.plot_timer.start(100)
+        self.start_button.clicked.connect(None)
+
+        self.experiment.start_measurements(4, self.start_value.value(), self.stop_value.value())
 
 
     def graph(self):
+        """Function which is called every 100ms to plot a graph with the new data added. If the thread is finished it will show the final results.
+        """        
+        self.plot_widget.clear()
+        self.plot_widget.plot(self.experiment.voltage_led, self.experiment.current_led, symbl="o", symbolSize=3, symbolPen="r", symbolBrush="r", pen=None)
+        self.plot_widget.setLabel("left", "current [I]")
+        self.plot_widget.setLabel("bottom", "voltage [V]")
+        self.plot_widget.setXRange(0, 2)
+        self.plot_widget.setYRange(-0.0005, 0.006)
+
+        if not self.experiment._scan_thread.is_alive():
+            self.plot_timer.stop()
+            self.voltage = self.experiment.get_voltage()
+            self.err_voltage = self.experiment.get_err_voltage()
+            self.current = self.experiment.get_current()
+            self.err_current = self.experiment.get_err_current()
+            self.start_button.clicked.connect(self.start_scanning)
+            self.end_graph()
+
+
+    def end_graph(self):
+        """Plotting of the final results of the measurements
+        """        
+        self.plot_widget.clear()
         errorbar = pq.ErrorBarItem(x=self.voltage, y=self.current, width = 2 * np.array(self.err_voltage), height = 2* np.array(self.err_current), pen={"color": "r"})
         self.plot_widget.plot(self.voltage, self.current, symbol = "o", symbolBrush = "r", symbolPen = 'r', symbolSize = 3, pen=None)
         self.plot_widget.addItem(errorbar)
         self.plot_widget.setLabel("left", "current [I]")
         self.plot_widget.setLabel("bottom", "voltage [V]")
+        self.plot_widget.setXRange(0, 2)
+        self.plot_widget.setYRange(-0.0005, 0.006)
     
 
     def save_data(self):
+        """Saving of the data to a csv file. This file has the directory chosen by the user. It saves the voltage and current and their errors.
+        """        
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(filter="CSV files (*.csv)")
         df = {"voltage": self.voltage,
               "error_voltage": self.err_voltage,  
