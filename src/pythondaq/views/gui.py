@@ -36,6 +36,7 @@ class UserInterface(QtWidgets.QMainWindow):
         try:
             DiodeExperiment(self.device.currentText())
             self.init()
+            self.string_device = self.device.currentText()
             print(self.device.currentText())
         except:
             self.text.setText("device not available")
@@ -87,7 +88,7 @@ class UserInterface(QtWidgets.QMainWindow):
     
 
     def scanning(self):
-        experiment = DiodeExperiment(self.device.currentText())
+        experiment = DiodeExperiment(self.string_device)
         results = experiment.measurements(2, self.start_value.value(), self.stop_value.value())
         self.voltage = experiment.get_voltage()
         self.err_voltage = experiment.get_err_voltage()
