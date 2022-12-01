@@ -11,7 +11,7 @@ pg.setConfigOption("foreground", "k")
 
 class UserInterface(QtWidgets.QMainWindow):
     def __init__(self):
-        """Initialises the class.
+        """Initialises the class and calls necessary functions.
         """        
         super().__init__()
         self.widgets()
@@ -19,6 +19,7 @@ class UserInterface(QtWidgets.QMainWindow):
         self.widget_addition()
         self.init_attr()
         self.change_device()
+
 
     def widget_layout(self):
         """Creates widget layout of the userinterface.
@@ -41,6 +42,9 @@ class UserInterface(QtWidgets.QMainWindow):
         self.vbox.addLayout(self.hbox_options)
         self.hbox_options.addLayout(self.vbox_choose_menu)
         self.hbox_options.addLayout(self.vbox_options)
+
+        self.hbox_status = QtWidgets.QHBoxLayout()
+        self.vbox.addLayout(self.hbox_status)
         
 
     def widgets(self):
@@ -74,12 +78,14 @@ class UserInterface(QtWidgets.QMainWindow):
         self.start_button = QtWidgets.QPushButton("Start")
         self.start_button.clicked.connect(self.check_device)
 
+        self.clear_button = QtWidgets.QPushButton("Clear")
+        self.clear_button.clicked.connect(self.clear_graph)
+
         self.save_button = QtWidgets.QPushButton("Save")
         self.save_button.clicked.connect(self.save_data)
 
         self.choose_device = QtWidgets.QComboBox()
         self.choose_device.addItems(info())
-        self.choose_device.setCurrentText("Choose a device")
         self.choose_device.currentIndexChanged.connect(self.change_device)
         
         self.choose_device_text = QtWidgets.QLabel()
@@ -88,11 +94,14 @@ class UserInterface(QtWidgets.QMainWindow):
         self.choose_device_info = QtWidgets.QLabel()
         self.choose_device_info.setText("Information: ")
 
+        self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.setGeometry(QtCore.QRect(0, 0, 200, 40))
+        self.progress_bar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        
 
     def widget_addition(self):
         """Adds a selected amount of widgets to the made layout.
         """        
-
         self.hbox_text.addWidget(self.start_text)
         self.hbox_text.addWidget(self.stop_text)
         self.hbox_text.addWidget(self.number_text)
@@ -102,10 +111,14 @@ class UserInterface(QtWidgets.QMainWindow):
         self.hbox_buttons.addWidget(self.number_experiment)
 
         self.vbox_options.addWidget(self.start_button)
+        self.vbox_options.addWidget(self.clear_button)
         self.vbox_options.addWidget(self.save_button)
-        self.vbox_choose_menu.addWidget(self.choose_device_text)
+        
+        self.vbox_choose_menu.addWidget(self.choose_device_text, alignment=QtCore.Qt.AlignmentFlag.AlignBottom)
         self.vbox_choose_menu.addWidget(self.choose_device)
-        self.vbox_choose_menu.addWidget(self.choose_device_info)
+        self.vbox_choose_menu.addWidget(self.choose_device_info, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
+
+        self.hbox_status.addWidget(self.progress_bar)
 
 
     def init_attr(self):
@@ -122,13 +135,14 @@ class UserInterface(QtWidgets.QMainWindow):
 
 
     def check_device(self):
+        """Checks if the device is usable for the experiment. If not create a dialog window.
+        """        
         if "Arduino" not in self.choose_device_info.text():
             self.device_error()
         else:
             self.start_scanning()
 
 
-  #  @QtCore.Slot
     def start_scanning(self):
         """Starts a thread and creates a timer which calls the function to replot the data every 100ms.
         """ 
@@ -136,8 +150,11 @@ class UserInterface(QtWidgets.QMainWindow):
         self.plot_timer = QtCore.QTimer()
         self.plot_timer.timeout.connect(self.graph)
         self.plot_timer.start(100)
+
         self.start_button.clicked.disconnect()
         self.start_button.clicked.connect(self.measurement_error)
+
+        self.progress_bar.setRange(0, self.number_experiment.value())
 
         self.experiment.start_measurements(self.number_experiment.value(), self.start_value.value(), self.stop_value.value())
 
@@ -145,30 +162,36 @@ class UserInterface(QtWidgets.QMainWindow):
     def graph(self):
         """Function which is called every 100ms to plot a graph with the new data added. If the thread is finished it will show the final results.
         """        
-        self.plot_widget.clear()
+        self.clear_graph()
         self.plot_widget.plot(self.experiment.voltage_led, self.experiment.current_led, symbl="o", symbolSize=3, symbolPen="r", symbolBrush="r", pen=None)
         self.plot_widget.setLabel("left", "current [I]")
         self.plot_widget.setLabel("bottom", "voltage [V]")
-        self.label.setText(f"Experiment: {self.experiment.current_experiment / self.number_experiment.value()}")
         self.plot_widget.setXRange(0, 2)
         self.plot_widget.setYRange(-0.0005, 0.006)
 
+        self.progress_bar.setFormat(f"Measurement: {self.experiment.current_experiment} / {self.number_experiment.value()}")
+        self.progress_bar.setValue(self.experiment.current_experiment)
+
         if not self.experiment._scan_thread.is_alive():
             self.plot_timer.stop()
+
             self.voltage = self.experiment.get_voltage()
             self.err_voltage = self.experiment.get_err_voltage()
             self.current = self.experiment.get_current()
             self.err_current = self.experiment.get_err_current()
+
             self.start_button.clicked.disconnect()
-            self.start_button.clicked.connect(self.start_scanning)
+            self.start_button.clicked.connect(self.check_device)
             self.experiment.device.close_device()
+            self.progress_bar.reset()
+
             self.end_graph()
 
 
     def end_graph(self):
         """Plotting of the final results of the measurements
         """        
-        self.plot_widget.clear()
+        self.clear_graph()
         errorbar = pg.ErrorBarItem(x=self.voltage, y=self.current, width = 2 * np.array(self.err_voltage), height = 2* np.array(self.err_current), pen={"color": "r"})
         self.plot_widget.plot(self.voltage, self.current, symbol = "o", symbolBrush = "r", symbolPen = 'r', symbolSize = 3, pen=None)
         self.plot_widget.addItem(errorbar)
@@ -177,6 +200,10 @@ class UserInterface(QtWidgets.QMainWindow):
         self.plot_widget.setXRange(0, 2)
         self.plot_widget.setYRange(-0.0005, 0.006)
     
+
+    def clear_graph(self):
+        self.plot_widget.clear()
+
 
     def save_data(self):
         """Saving of the data to a csv file. This file has the directory chosen by the user. It saves the voltage and current and their errors.
@@ -191,6 +218,8 @@ class UserInterface(QtWidgets.QMainWindow):
 
     
     def device_error(self):
+        """Creates a dialog window to inform the user that the device is not usable for the experiment.
+        """        
         dialog = QtWidgets.QDialog()
         dialog.setGeometry(QtCore.QRect(860, 440, 260, 80))
 
@@ -206,6 +235,8 @@ class UserInterface(QtWidgets.QMainWindow):
 
 
     def measurement_error(self):
+        """Creates a dialog window to inform the user that an experiment is already running.
+        """        
         dialog = QtWidgets.QDialog()
         dialog.setGeometry(QtCore.QRect(860, 440, 260, 80))
 
