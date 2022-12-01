@@ -18,6 +18,7 @@ class UserInterface(QtWidgets.QMainWindow):
         self.widget_layout()
         self.widget_addition()
         self.init_attr()
+        self.change_device()
 
     def widget_layout(self):
         """Creates widget layout of the userinterface.
@@ -49,7 +50,6 @@ class UserInterface(QtWidgets.QMainWindow):
         self.label = pg.LabelItem(f"", **{"color": "k"})
         self.plot_widget.addItem(self.label)
 
-
         self.start_value = QtWidgets.QDoubleSpinBox()
         self.start_value.setRange(0, 3.3)
         self.start_value.setValue(0)
@@ -72,7 +72,7 @@ class UserInterface(QtWidgets.QMainWindow):
         self.number_text.setText("Number of experiments:")
     
         self.start_button = QtWidgets.QPushButton("Start")
-        self.start_button.clicked.connect(self.start_scanning)
+        self.start_button.clicked.connect(self.check_device)
 
         self.save_button = QtWidgets.QPushButton("Save")
         self.save_button.clicked.connect(self.save_data)
@@ -121,13 +121,18 @@ class UserInterface(QtWidgets.QMainWindow):
         self.choose_device_info.setText(f"Information: {device}")
 
 
-        self.experiment = DiodeExperiment(self.choose_device.currentText())
+    def check_device(self):
+        if "Arduino" not in self.choose_device_info.text():
+            self.device_error()
+        else:
+            self.start_scanning()
 
 
   #  @QtCore.Slot
     def start_scanning(self):
         """Starts a thread and creates a timer which calls the function to replot the data every 100ms.
-        """        
+        """ 
+        self.experiment = DiodeExperiment(self.choose_device.currentText())       
         self.plot_timer = QtCore.QTimer()
         self.plot_timer.timeout.connect(self.graph)
         self.plot_timer.start(100)
@@ -154,6 +159,7 @@ class UserInterface(QtWidgets.QMainWindow):
             self.current = self.experiment.get_current()
             self.err_current = self.experiment.get_err_current()
             self.start_button.clicked.connect(self.start_scanning)
+            self.experiment.device.close_device()
             self.end_graph()
 
 
@@ -180,6 +186,21 @@ class UserInterface(QtWidgets.QMainWindow):
               "error_current": self.err_current}
         df = pd.DataFrame(df)
         df.to_csv(filename, index = False, sep = ',')
+
+    
+    def device_error(self):
+        dialog = QtWidgets.QDialog()
+        dialog.setGeometry(QtCore.QRect(860, 440, 260, 100))
+
+        text = QtWidgets.QLabel(dialog)
+        text.setText("The selected device is not an arduino!")
+        text.setGeometry(QtCore.QRect(25, 10, 210, 20))
+
+        button = QtWidgets.QPushButton("Ok", dialog)
+        button.clicked.connect(dialog.close)
+        button.setGeometry(QtCore.QRect(80, 50, 100, 25))
+
+        dialog.exec()
 
 
 

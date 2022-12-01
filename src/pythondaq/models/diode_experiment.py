@@ -106,7 +106,7 @@ class DiodeExperiment:
 
             self.voltage_led.append(volt_led)
             self.current_led.append(i_led)
-
+        
         return self.voltage_led, self.current_led
 
 
@@ -135,7 +135,6 @@ class DiodeExperiment:
         
         self.c_err = [np.std(i) / math.sqrt(N) for i in transposed_current]
         self.v_err = [np.std(i) / math.sqrt(N) for i in transposed_voltage]
-#        self.device.close_device()
 
 
     def start_measurements(self, N, start, stop):
