@@ -28,8 +28,14 @@ class UserInterface(QtWidgets.QMainWindow):
         self.vbox = QtWidgets.QVBoxLayout(central_widget)
         self.vbox.addWidget(self.plot_widget)
 
+        self.hbox_text = QtWidgets.QHBoxLayout()
+        self.vbox.addLayout(self.hbox_text)
+
         self.hbox_buttons = QtWidgets.QHBoxLayout()
         self.vbox.addLayout(self.hbox_buttons)
+
+        self.hbox_options = QtWidgets.QHBoxLayout()
+        self.vbox.addLayout(self.hbox_options)
         
 
     def widgets(self):
@@ -40,25 +46,50 @@ class UserInterface(QtWidgets.QMainWindow):
         self.start_value = QtWidgets.QDoubleSpinBox()
         self.start_value.setRange(0, 3.3)
         self.start_value.setValue(0)
+
+        self.start_text = QtWidgets.QLabel()
+        self.start_text.setText("Start value (volts):")
         
         self.stop_value = QtWidgets.QDoubleSpinBox()
         self.stop_value.setRange(0, 3.3)
         self.stop_value.setValue(0)
 
+        self.stop_text = QtWidgets.QLabel()
+        self.stop_text.setText("Stop value (volts):")
+        
+        self.number_experiment = QtWidgets.QSpinBox()
+        self.number_experiment.setRange(1, 100)
+        self.number_experiment.setValue(1)
+
+        self.number_text = QtWidgets.QLabel()
+        self.number_text.setText("Number of experiments:")
+    
         self.start_button = QtWidgets.QPushButton("Start")
         self.start_button.clicked.connect(self.start_scanning)
 
         self.save_button = QtWidgets.QPushButton("Save")
         self.save_button.clicked.connect(self.save_data)
-    
+
+        self.choose_device = QtWidgets.QComboBox()
+        self.choose_device.addItems(info())
+        self.choose_device.currentIndexChanged.connect(self.change_device)
+
 
     def widget_addition(self):
         """Adds a selected amount of widgets to the made layout.
         """        
+
+        self.hbox_text.addWidget(self.start_text)
+        self.hbox_text.addWidget(self.stop_text)
+        self.hbox_text.addWidget(self.number_text)
+
         self.hbox_buttons.addWidget(self.start_value)
         self.hbox_buttons.addWidget(self.stop_value)
-        self.hbox_buttons.addWidget(self.start_button)
-        self.hbox_buttons.addWidget(self.save_button)
+        self.hbox_buttons.addWidget(self.number_experiment)
+
+        self.hbox_options.addWidget(self.start_button)
+        self.hbox_options.addWidget(self.save_button)
+        self.hbox_options.addWidget(self.choose_device)
 
 
     def init_attr(self):
@@ -67,7 +98,11 @@ class UserInterface(QtWidgets.QMainWindow):
         self.string_device = "ASRL4::INSTR"
         self.experiment = DiodeExperiment(self.string_device)
 
-    
+
+    def change_device(self):
+        self.experiment = DiodeExperiment(self.choose_device.currentText())
+
+
     def start_scanning(self):
         """Starts a thread and creates a timer which calls the function to replot the data every 100ms.
         """        
@@ -76,7 +111,7 @@ class UserInterface(QtWidgets.QMainWindow):
         self.plot_timer.start(100)
         self.start_button.clicked.connect(None)
 
-        self.experiment.start_measurements(4, self.start_value.value(), self.stop_value.value())
+        self.experiment.start_measurements(self.number_experiment.value(), self.start_value.value(), self.stop_value.value())
 
 
     def graph(self):
