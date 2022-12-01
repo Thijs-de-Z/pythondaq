@@ -136,7 +136,8 @@ class UserInterface(QtWidgets.QMainWindow):
         self.plot_timer = QtCore.QTimer()
         self.plot_timer.timeout.connect(self.graph)
         self.plot_timer.start(100)
-        self.start_button.clicked.connect(None)
+        self.start_button.clicked.disconnect()
+        self.start_button.clicked.connect(self.measurement_error)
 
         self.experiment.start_measurements(self.number_experiment.value(), self.start_value.value(), self.stop_value.value())
 
@@ -158,6 +159,7 @@ class UserInterface(QtWidgets.QMainWindow):
             self.err_voltage = self.experiment.get_err_voltage()
             self.current = self.experiment.get_current()
             self.err_current = self.experiment.get_err_current()
+            self.start_button.clicked.disconnect()
             self.start_button.clicked.connect(self.start_scanning)
             self.experiment.device.close_device()
             self.end_graph()
@@ -190,7 +192,7 @@ class UserInterface(QtWidgets.QMainWindow):
     
     def device_error(self):
         dialog = QtWidgets.QDialog()
-        dialog.setGeometry(QtCore.QRect(860, 440, 260, 100))
+        dialog.setGeometry(QtCore.QRect(860, 440, 260, 80))
 
         text = QtWidgets.QLabel(dialog)
         text.setText("The selected device is not an arduino!")
@@ -198,10 +200,24 @@ class UserInterface(QtWidgets.QMainWindow):
 
         button = QtWidgets.QPushButton("Ok", dialog)
         button.clicked.connect(dialog.close)
-        button.setGeometry(QtCore.QRect(80, 50, 100, 25))
+        button.setGeometry(QtCore.QRect(80, 40, 100, 25))
 
         dialog.exec()
 
+
+    def measurement_error(self):
+        dialog = QtWidgets.QDialog()
+        dialog.setGeometry(QtCore.QRect(860, 440, 260, 80))
+
+        text = QtWidgets.QLabel(dialog)
+        text.setText("Please wait until the experiment is finished")
+        text.setGeometry(QtCore.QRect(20, 10, 210, 20))
+
+        button = QtWidgets.QPushButton("Ok", dialog)
+        button.clicked.connect(dialog.close)
+        button.setGeometry(QtCore.QRect(80, 40, 100, 25))
+
+        dialog.exec()
 
 
 
