@@ -120,11 +120,12 @@ class DiodeExperiment:
             stop (int, float): Stopping value of measurement in bits or volts
         """        
         measured_currents, measured_voltages,  = [], []
-
+        self.current_experiment = 0
         for i in range(N):
             measured = self.scan(start, stop)
             measured_currents.append(measured[1])
             measured_voltages.append(measured[0])
+            self.current_experiment = i + 1
 
         transposed_current = np.array(measured_currents).T
         transposed_voltage = np.array(measured_voltages).T

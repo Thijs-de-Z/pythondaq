@@ -25,12 +25,19 @@ def info_devices(device = False):
                 print(f'{i}. {j}, information:', rm.open_resource(j, read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
             except:
                 print(f'{i}. {j}, device unknown')              # raises an userwarning
+            rm.close()
 
     else:
         try:
-            print(f'{device}, information:', rm.open_resource(device, read_termination = "\n\r", write_termination = "\n").query("*IDN?"))
+            device_string = rm.open_resource(device, read_termination = "\n\r", write_termination = "\n").query("*IDN?")
+            print(f'{device}, information: {device_string}')
+            rm.close()
+            return device_string
         except:
-            print(f'{device}, device unknown')                  # raises an userwarning
+            print(f'{device}, device unknown') 
+            rm.close()                          # raises an userwarning
+            return "Device unknown"
+        
 
 
 class ArduinoVISADevice:

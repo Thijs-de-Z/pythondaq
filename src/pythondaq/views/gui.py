@@ -1,12 +1,12 @@
-import pyqtgraph as pq
+import pyqtgraph as pg
 from PySide6 import QtWidgets, QtCore
 import sys
-from pythondaq.models.diode_experiment import DiodeExperiment, info
+from pythondaq.models.diode_experiment import DiodeExperiment, info, init
 import pandas as pd
 import numpy as np
 
-pq.setConfigOption("background", "w")
-pq.setConfigOption("foreground", "k")
+pg.setConfigOption("background", "w")
+pg.setConfigOption("foreground", "k")
 
 
 class UserInterface(QtWidgets.QMainWindow):
@@ -35,13 +35,20 @@ class UserInterface(QtWidgets.QMainWindow):
         self.vbox.addLayout(self.hbox_buttons)
 
         self.hbox_options = QtWidgets.QHBoxLayout()
+        self.vbox_choose_menu = QtWidgets.QVBoxLayout()
+        self.vbox_options = QtWidgets.QVBoxLayout()
         self.vbox.addLayout(self.hbox_options)
+        self.hbox_options.addLayout(self.vbox_choose_menu)
+        self.hbox_options.addLayout(self.vbox_options)
         
 
     def widgets(self):
         """Creates all widgets needed to run the userinterface.
         """        
-        self.plot_widget = pq.PlotWidget()
+        self.plot_widget = pg.PlotWidget()
+        self.label = pg.LabelItem(f"", **{"color": "k"})
+        self.plot_widget.addItem(self.label)
+
 
         self.start_value = QtWidgets.QDoubleSpinBox()
         self.start_value.setRange(0, 3.3)
@@ -52,7 +59,7 @@ class UserInterface(QtWidgets.QMainWindow):
         
         self.stop_value = QtWidgets.QDoubleSpinBox()
         self.stop_value.setRange(0, 3.3)
-        self.stop_value.setValue(0)
+        self.stop_value.setValue(3.3)
 
         self.stop_text = QtWidgets.QLabel()
         self.stop_text.setText("Stop value (volts):")
@@ -72,7 +79,14 @@ class UserInterface(QtWidgets.QMainWindow):
 
         self.choose_device = QtWidgets.QComboBox()
         self.choose_device.addItems(info())
+        self.choose_device.setCurrentText("Choose a device")
         self.choose_device.currentIndexChanged.connect(self.change_device)
+        
+        self.choose_device_text = QtWidgets.QLabel()
+        self.choose_device_text.setText("Choose device: ")
+
+        self.choose_device_info = QtWidgets.QLabel()
+        self.choose_device_info.setText("Information: ")
 
 
     def widget_addition(self):
@@ -87,22 +101,30 @@ class UserInterface(QtWidgets.QMainWindow):
         self.hbox_buttons.addWidget(self.stop_value)
         self.hbox_buttons.addWidget(self.number_experiment)
 
-        self.hbox_options.addWidget(self.start_button)
-        self.hbox_options.addWidget(self.save_button)
-        self.hbox_options.addWidget(self.choose_device)
+        self.vbox_options.addWidget(self.start_button)
+        self.vbox_options.addWidget(self.save_button)
+        self.vbox_choose_menu.addWidget(self.choose_device_text)
+        self.vbox_choose_menu.addWidget(self.choose_device)
+        self.vbox_choose_menu.addWidget(self.choose_device_info)
 
 
     def init_attr(self):
         """Initialising attributes of the class that are needed to run the program
         """        
         self.string_device = "ASRL4::INSTR"
-        self.experiment = DiodeExperiment(self.string_device)
 
 
     def change_device(self):
+        """Changes the device if the device string is changed, to the selected string.
+        """        
+        device = init(self.choose_device.currentText())
+        self.choose_device_info.setText(f"Information: {device}")
+
+
         self.experiment = DiodeExperiment(self.choose_device.currentText())
 
 
+  #  @QtCore.Slot
     def start_scanning(self):
         """Starts a thread and creates a timer which calls the function to replot the data every 100ms.
         """        
@@ -121,6 +143,7 @@ class UserInterface(QtWidgets.QMainWindow):
         self.plot_widget.plot(self.experiment.voltage_led, self.experiment.current_led, symbl="o", symbolSize=3, symbolPen="r", symbolBrush="r", pen=None)
         self.plot_widget.setLabel("left", "current [I]")
         self.plot_widget.setLabel("bottom", "voltage [V]")
+        self.label.setText(f"Experiment: {self.experiment.current_experiment / self.number_experiment.value()}")
         self.plot_widget.setXRange(0, 2)
         self.plot_widget.setYRange(-0.0005, 0.006)
 
@@ -138,7 +161,7 @@ class UserInterface(QtWidgets.QMainWindow):
         """Plotting of the final results of the measurements
         """        
         self.plot_widget.clear()
-        errorbar = pq.ErrorBarItem(x=self.voltage, y=self.current, width = 2 * np.array(self.err_voltage), height = 2* np.array(self.err_current), pen={"color": "r"})
+        errorbar = pg.ErrorBarItem(x=self.voltage, y=self.current, width = 2 * np.array(self.err_voltage), height = 2* np.array(self.err_current), pen={"color": "r"})
         self.plot_widget.plot(self.voltage, self.current, symbol = "o", symbolBrush = "r", symbolPen = 'r', symbolSize = 3, pen=None)
         self.plot_widget.addItem(errorbar)
         self.plot_widget.setLabel("left", "current [I]")
